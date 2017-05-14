@@ -38,15 +38,15 @@ def _hash_replay(replay_path):
 
 class ReplayManager:
 
-    def __init__(self, workspace_path: str):
-        if not os.path.exists(workspace_path):
-            os.makedirs(workspace_path)
+    def __init__(self, app_data_path: str):
+        if not os.path.exists(app_data_path):
+            os.makedirs(app_data_path)
 
-        replay_archive_path = os.path.join(workspace_path, REPLAY_ARCHIVE_SUBDIRECTORY_NAME)
+        replay_archive_path = os.path.join(app_data_path, REPLAY_ARCHIVE_SUBDIRECTORY_NAME)
         if not os.path.exists(replay_archive_path):
             os.makedirs(replay_archive_path)
 
-        db_path = os.path.join(workspace_path, DB_FILE_NAME)
+        db_path = os.path.join(app_data_path, DB_FILE_NAME)
         if not os.path.exists(db_path):
             open(db_path, 'a').close()
 

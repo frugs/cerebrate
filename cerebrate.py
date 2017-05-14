@@ -3,7 +3,9 @@ import click
 import replaymanager
 import replaysearch
 
-_replay_manager = replaymanager.ReplayManager(os.path.expanduser("~/.sc2replaymanager"))
+APP_DATA_PATH = os.path.expanduser("~/.cerebrate")
+
+_replay_manager = replaymanager.ReplayManager(APP_DATA_PATH)
 
 
 @click.group()
