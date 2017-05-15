@@ -10,7 +10,6 @@ DB_FILE_NAME = "replays.json"
 
 
 def _add_tags(tags: list):
-
     def transform(element):
         element['tags'] = list(set(element['tags'] + tags))
 
@@ -18,11 +17,24 @@ def _add_tags(tags: list):
 
 
 def _remove_tags(tags: list):
-
     def transform(element):
         element['tags'] = list(set(element['tags']) - set(tags))
 
     return transform
+
+
+def _match_all_tags(tags: list):
+    def match(replay_tags):
+        return bool(all(tag in replay_tags for tag in tags))
+
+    return match
+
+
+def _match_any_tags(tags: list):
+    def match(replay_tags):
+        return bool(any(tag in replay_tags for tag in tags))
+
+    return match
 
 
 def _hash_replay(replay_path):
@@ -37,7 +49,6 @@ def _hash_replay(replay_path):
 
 
 class ReplayManager:
-
     def __init__(self, app_data_path: str):
         if not os.path.exists(app_data_path):
             os.makedirs(app_data_path)
@@ -68,3 +79,18 @@ class ReplayManager:
 
         replay = tinydb.Query()
         self.__db.update(_remove_tags(tags), replay['hash'] == replay_hash)
+
+    def query_replays(self, match_any_tag: bool, inverse: bool, replays_to_query_from: list, tags: list) -> list:
+
+        replay_hashes = map(_hash_replay, replays_to_query_from)
+
+        replay = tinydb.Query()
+
+        query = replay['tags'].any(tags) if match_any_tag else replay['tags'].all(tags)
+        query = ~query if inverse else query
+        query = query | replay['hash'].test(lambda x: x in replay_hashes) if replay_hashes else query
+
+        matches = self.__db.search(query)
+
+        return [match['canonical_path'] for match in matches]
+
