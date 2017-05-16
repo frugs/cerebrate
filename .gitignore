@@ -5,3 +5,5 @@ dist
 cerebrate.spec
 */__pychache__/*
 __pychache__/*
+MANIFEST
+cerebrate.egg-info/
