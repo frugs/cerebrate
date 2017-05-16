@@ -47,7 +47,8 @@ def remove_tag(most_recent_replay, replay, tags):
 
 @click.command(name="query-replays")
 @click.option("--source-list", "-l", type=click.File('r'), help="File containing list of replays files to query from.")
-@click.option("--source-dir", "-d", type=click.Path(), help="Directory containing replay files to query from.")
+@click.option("--source-dir", "-d", type=click.Path(),
+              help="Directory containing replay files to query from. Use '-' to accept from stdin.")
 @click.option("--output-dir", "-o", type=click.Path(), help="Directory to copy matching replays to.")
 @click.option("--match-any-tag", type=bool, is_flag=True, default=False,
               help="How to match tags on replays. Default is to match all tags.")
@@ -70,7 +71,8 @@ def query_replays(source_list, source_dir, output_dir, match_any_tag, inverse, t
 
 
 @click.command(name="tag-frequency")
-@click.option("--source-list", "-l", type=click.File('r'), help="File containing list of replays files to query from.")
+@click.option("--source-list", "-l", type=click.File('r'),
+              help="File containing list of replays files to query from. Use '-' to accept from stdin.")
 @click.option("--source-dir", "-d", type=click.Path(), help="Directory containing replay files to query from.")
 def tag_frequency(source_list, source_dir):
     source_replays = find_and_add_source_replays(source_list, source_dir)
