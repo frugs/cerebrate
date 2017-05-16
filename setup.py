@@ -14,12 +14,12 @@ class PostInstallCommand(install):
 
 setup(
     name='cerebrate',
-    version='0.0.4',
+    version='0.0.5',
     description='Offline Replay Manager for StarCraft II',
     author='Hugo Wainwright',
     author_email='wainwrighthugo@gmail.com',
     url='https://github.com/frugs/cerebrate',
-    download_url='https://github.com/frugs/cerebrate/tarball/0.0.4',
+    download_url='https://github.com/frugs/cerebrate/tarball/0.0.5',
     packages=find_packages(),
     py_modules=['cerebrate'],
     include_package_data=True,
@@ -32,4 +32,7 @@ setup(
         [console_scripts]
         cerebrate=cerebrate:cli
     ''',
+    cmdclass={
+        'install': PostInstallCommand,
+    }
 )
