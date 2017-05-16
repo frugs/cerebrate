@@ -1,8 +1,11 @@
-import os.path
+import glob
+import os
+import shutil
+
 import click
+
 import replaymanager
 import replaysearch
-import glob
 
 APP_DATA_PATH = os.path.expanduser("~/.cerebrate")
 
@@ -15,8 +18,8 @@ def cli():
 
 
 @click.command(name="add-tag")
-@click.option("--most-recent-replay", "-m", type=bool, is_flag=True, help="Use your most recently replay")
-@click.option("--replay", "-r", type=click.Path(), help="Path to the replay to tag")
+@click.option("--most-recent-replay", "-m", type=bool, is_flag=True, help="Use your most recent replay.")
+@click.option("--replay", "-r", type=click.Path(), help="Path to the replay to tag.")
 @click.argument('tags', nargs=-1, type=str)
 def add_tag(most_recent_replay, replay, tags):
     if not replay and not most_recent_replay:
@@ -29,8 +32,8 @@ def add_tag(most_recent_replay, replay, tags):
 
 
 @click.command(name="remove-tag")
-@click.option("--most-recent-replay", "-m", type=bool, is_flag=True, help="Use your most recently replay")
-@click.option("--replay", "-r", type=click.Path(), help="Path to the replay to tag")
+@click.option("--most-recent-replay", "-m", type=bool, is_flag=True, help="Use your most recently replay.")
+@click.option("--replay", "-r", type=click.Path(), help="Path to the replay to tag.")
 @click.argument('tags', nargs=-1, type=str)
 def remove_tag(most_recent_replay, replay, tags):
     if not replay and not most_recent_replay:
@@ -43,23 +46,32 @@ def remove_tag(most_recent_replay, replay, tags):
 
 
 @click.command(name="query-replays")
-@click.option("--source-list", "-l", type=click.File('r'), help="File containing list of replays files to query from")
-@click.option("--source-dir", "-d", type=click.Path(), help="Directory containing replay files to query from")
+@click.option("--source-list", "-l", type=click.File('r'), help="File containing list of replays files to query from.")
+@click.option("--source-dir", "-d", type=click.Path(), help="Directory containing replay files to query from.")
+@click.option("--output-dir", "-o", type=click.Path(), help="Directory to copy matching replays to.")
 @click.option("--match-any-tag", type=bool, is_flag=True, default=False,
               help="How to match tags on replays. Default is to match all tags.")
-@click.option("--inverse", type=bool, is_flag=True, help="Search for replays not matching the tags")
+@click.option("--inverse", type=bool, is_flag=True, help="Search for replays not matching the tags.")
 @click.argument('tags', nargs=-1, type=str)
-def query_replays(source_list, source_dir, match_any_tag, inverse, tags):
+def query_replays(source_list, source_dir, output_dir, match_any_tag, inverse, tags):
+    if output_dir and not os.path.isdir(output_dir):
+        raise click.UsageError("output directory is not a directory")
+
     source_replays = find_and_add_source_replays(source_list, source_dir)
 
     replays_paths = _replay_manager.query_replays(match_any_tag, inverse, source_replays, list(tags))
-    for path in replays_paths:
-        click.echo(path)
+
+    if output_dir:
+        for path in replays_paths:
+            shutil.copyfile(path, os.path.join(output_dir, os.path.basename(path)))
+    else:
+        for path in replays_paths:
+            click.echo(path)
 
 
 @click.command(name="tag-frequency")
-@click.option("--source-list", "-l", type=click.File('r'), help="File containing list of replays files to query from")
-@click.option("--source-dir", "-d", type=click.Path(), help="Directory containing replay files to query from")
+@click.option("--source-list", "-l", type=click.File('r'), help="File containing list of replays files to query from.")
+@click.option("--source-dir", "-d", type=click.Path(), help="Directory containing replay files to query from.")
 def tag_frequency(source_list, source_dir):
     source_replays = find_and_add_source_replays(source_list, source_dir)
 

@@ -3,6 +3,9 @@ import os
 from setuptools import setup, find_packages
 from setuptools.command.install import install
 
+with open("VERSION.txt") as version_file:
+    _version = version_file.readline().strip()
+
 
 class PostInstallCommand(install):
     """Post-installation for installation mode."""
@@ -19,12 +22,12 @@ class PostInstallCommand(install):
 
 setup(
     name='cerebrate',
-    version='0.0.8',
+    version=_version,
     description='Offline Replay Manager for StarCraft II',
     author='Hugo Wainwright',
     author_email='wainwrighthugo@gmail.com',
     url='https://github.com/frugs/cerebrate',
-    download_url='https://github.com/frugs/cerebrate/tarball/0.0.8',
+    download_url='https://github.com/frugs/cerebrate/tarball/' + _version,
     packages=find_packages(),
     py_modules=['cerebrate'],
     include_package_data=True,
