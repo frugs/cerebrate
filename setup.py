@@ -12,16 +12,19 @@ class PostInstallCommand(install):
         elif sys.platform.startswith("linux"):
             os.system('''echo 'eval "$(_CEREBRATE_COMPLETE=source cerebrate)"' >> ~/.bashrc''')
 
+        if os.path.exists(os.path.expanduser("~/.zshrc")):
+            os.system('''echo 'eval "$(_CEREBRATE_COMPLETE=source cerebrate)"' >> ~/.zshrc''')
+
         install.run(self)
 
 setup(
     name='cerebrate',
-    version='0.0.7',
+    version='0.0.8',
     description='Offline Replay Manager for StarCraft II',
     author='Hugo Wainwright',
     author_email='wainwrighthugo@gmail.com',
     url='https://github.com/frugs/cerebrate',
-    download_url='https://github.com/frugs/cerebrate/tarball/0.0.7',
+    download_url='https://github.com/frugs/cerebrate/tarball/0.0.8',
     packages=find_packages(),
     py_modules=['cerebrate'],
     include_package_data=True,
