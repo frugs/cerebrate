@@ -33,8 +33,7 @@ setup(
     include_package_data=True,
     install_requires=[
         'tinydb',
-        'click',
-        'ujson'
+        'click'
     ],
     entry_points='''
         [console_scripts]
