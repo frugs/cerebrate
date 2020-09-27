@@ -42,7 +42,7 @@ setup(
     install_requires=["tinydb", "click"],
     entry_points="""
         [console_scripts]
-        cerebrate=cerebrate:cli
+        cerebrate=cerebrate_cli:cli
     """,
     cmdclass={
         "install": PostInstallCommand,
