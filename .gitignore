@@ -7,3 +7,5 @@ cerebrate.spec
 __pychache__/*
 MANIFEST
 cerebrate.egg-info/
+.dmypy.json
+.mypy_cache
