@@ -1,0 +1,2 @@
+class ReplayQuery:
+    pass
