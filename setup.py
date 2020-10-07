@@ -7,27 +7,6 @@ with open("VERSION.txt") as version_file:
     _version = version_file.readline().strip()
 
 
-class PostInstallCommand(install):
-    """Post-installation for installation mode."""
-
-    def run(self):
-        if sys.platform == "darwin":
-            os.system(
-                """echo 'eval "$(_CEREBRATE_COMPLETE=source cerebrate)"' >> ~/.profile"""
-            )
-        elif sys.platform.startswith("linux"):
-            os.system(
-                """echo 'eval "$(_CEREBRATE_COMPLETE=source cerebrate)"' >> ~/.bashrc"""
-            )
-
-        if os.path.exists(os.path.expanduser("~/.zshrc")):
-            os.system(
-                """echo 'eval "$(_CEREBRATE_COMPLETE=source cerebrate)"' >> ~/.zshrc"""
-            )
-
-        install.run(self)
-
-
 setup(
     name="cerebrate",
     version=_version,
@@ -42,9 +21,6 @@ setup(
     install_requires=["tinydb", "click"],
     entry_points="""
         [console_scripts]
-        cerebrate=cerebrate_cli:cli
+        cerebrate_cli=cerebrate_cli:cli
     """,
-    cmdclass={
-        "install": PostInstallCommand,
-    },
 )

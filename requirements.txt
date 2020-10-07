@@ -1,2 +1,1 @@
-tinydb
-click
+-e .
