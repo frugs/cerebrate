@@ -1,7 +1,4 @@
-import sys
-import os
 from setuptools import setup, find_packages
-from setuptools.command.install import install
 
 with open("VERSION.txt") as version_file:
     _version = version_file.readline().strip()
@@ -19,8 +16,4 @@ setup(
     py_modules=["cerebrate"],
     include_package_data=True,
     install_requires=["tinydb", "click"],
-    entry_points="""
-        [console_scripts]
-        cerebrate_cli=cerebrate_cli:cli
-    """,
 )
