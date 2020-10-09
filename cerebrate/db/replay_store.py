@@ -67,5 +67,14 @@ class ReplayStore:
                 }
             )
 
-    def query_replays(self, query: ReplayQuery) -> List[Replay]:
+    def find_replay_by_hash(self, replay_hash: str) -> Optional[Replay]:
+        result = self.__db.get(tinydb.where("hash") == replay_hash)
+        if not result:
+            return None
+
+        return Replay(
+            path=result["canonical_path"], replay_hash=replay_hash, tags=result["tags"]
+        )
+
+    def query_replays(self, replay_query: ReplayQuery) -> List[Replay]:
         return []

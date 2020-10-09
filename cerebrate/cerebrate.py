@@ -6,7 +6,7 @@ import click
 
 from cerebrate import replaysearch, replaymanager
 from cerebrate.core import Replay
-from cerebrate.db import ReplayStore
+from cerebrate.db import ReplayStore, ReplayQuery
 
 APP_DATA_PATH = os.path.expanduser("~/.cerebrate")
 
@@ -26,6 +26,10 @@ class Cerebrate:
 
     def save_tagged_replay(self, replay: Replay):
         self.replay_store.update_or_insert_replay(replay)
+
+    def load_replay_tags(self, replay: Replay) -> Replay:
+        result = self.replay_store.find_replay_by_hash(replay.replay_hash)
+        return result if result else replay
 
 
 def add_tag(most_recent_replay, replay, tags):
