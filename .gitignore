@@ -11,3 +11,5 @@ cerebrate.egg-info/
 .mypy_cache
 **/*/.cache
 **/*/debug.log
+/.cache
+
