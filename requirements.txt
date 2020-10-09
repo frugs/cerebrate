@@ -5,5 +5,6 @@
 #    pip-compile
 #
 click==7.1.2              # via cerebrate (setup.py)
-pysimplegui==4.29.0       # via cerebrate (setup.py)
+guy==0.7.5                # via cerebrate (setup.py)
 tinydb==4.2.0             # via cerebrate (setup.py)
+tornado==6.0.4            # via guy

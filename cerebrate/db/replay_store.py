@@ -1,6 +1,6 @@
 import os
 import shutil
-from typing import List, ClassVar, Final
+from typing import List, Final, BinaryIO, Optional
 
 import tinydb
 
@@ -9,8 +9,8 @@ from cerebrate.db.replay_query import ReplayQuery
 
 
 class ReplayStore:
-    __REPLAY_ARCHIVE_SUBDIRECTORY_NAME: Final[ClassVar] = "replay_archive"
-    __DB_FILE_NAME: Final[ClassVar] = "replays.json"
+    __REPLAY_ARCHIVE_SUBDIRECTORY_NAME: Final = "replay_archive"
+    __DB_FILE_NAME: Final = "replays.json"
 
     __db: Final[tinydb.TinyDB]
 
@@ -31,6 +31,21 @@ class ReplayStore:
         self.__db = tinydb.TinyDB(db_path)
         self.__replay_archive_path = replay_archive_path
 
+    def insert_replay_data(
+        self, replay_data: BinaryIO, replay_hash: Optional[str] = None
+    ) -> Optional[Replay]:
+        calculated_hash = Replay.hash_replay_data(replay_data)
+        if replay_hash and calculated_hash != replay_hash:
+            return None
+
+        canonical_path = os.path.join(
+            self.__replay_archive_path, calculated_hash + ".SC2Replay"
+        )
+        with open(canonical_path, "wb") as replay_file:
+            shutil.copyfileobj(replay_data, replay_file)
+
+        return Replay(canonical_path, calculated_hash)
+
     def update_or_insert_replay(self, replay: Replay):
         def update_tags(element):
             element["tags"] = replay.tags
@@ -42,7 +57,8 @@ class ReplayStore:
             canonical_path = os.path.join(
                 self.__replay_archive_path, replay.replay_hash + ".SC2Replay"
             )
-            shutil.copyfile(replay.path, canonical_path)
+            if canonical_path != replay.path:
+                shutil.copyfile(replay.path, canonical_path)
             self.__db.insert(
                 {
                     "hash": replay.replay_hash,

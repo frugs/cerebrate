@@ -9,3 +9,5 @@ MANIFEST
 cerebrate.egg-info/
 .dmypy.json
 .mypy_cache
+**/*/.cache
+**/*/debug.log

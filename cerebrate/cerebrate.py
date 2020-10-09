@@ -1,13 +1,31 @@
 import glob
 import os
+from typing import Final, Optional, BinaryIO
 
 import click
 
 from cerebrate import replaysearch, replaymanager
+from cerebrate.core import Replay
+from cerebrate.db import ReplayStore
 
 APP_DATA_PATH = os.path.expanduser("~/.cerebrate")
 
 _replay_manager = replaymanager.ReplayManager(APP_DATA_PATH)
+
+
+class Cerebrate:
+    replay_store: Final[ReplayStore]
+
+    def __init__(self):
+        self.replay_store = ReplayStore(APP_DATA_PATH)
+
+    def save_replay_data(
+        self, replay_data: BinaryIO, replay_hash: Optional[str] = None
+    ) -> Optional[Replay]:
+        return self.replay_store.insert_replay_data(replay_data, replay_hash)
+
+    def save_tagged_replay(self, replay: Replay):
+        self.replay_store.update_or_insert_replay(replay)
 
 
 def add_tag(most_recent_replay, replay, tags):
