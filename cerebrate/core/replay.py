@@ -1,6 +1,17 @@
 import functools
 import hashlib
-from typing import Final, final, BinaryIO, List
+import os
+from typing import Final, final, BinaryIO, List, Optional
+
+
+@final
+class Team:
+    team_id: Final[str]
+    name: Final[str]
+
+    def __init__(self, team_id: str, name: str):
+        self.team_id = team_id
+        self.name = name
 
 
 @final
@@ -11,7 +22,12 @@ class Replay:
 
     path: Final[str]
     replay_hash: Final[str]
+
     tags: Final[List[str]]
+    teams: Final[List[Team]]
+    timestamp: Optional[int]
+    player_team: Optional[int]
+    opponent_team: Optional[int]
 
     @classmethod
     def hash_replay_data(cls, replay_data: BinaryIO) -> str:
@@ -27,16 +43,32 @@ class Replay:
         with open(replay_path, "rb") as replay_file:
             return Replay.hash_replay_data(replay_file)
 
-    def __init__(self, path: str, replay_hash: str = "", tags=None):
+    def __init__(
+        self,
+        path: str,
+        replay_hash: str = "",
+        tags: Optional[List[str]] = None,
+        teams: Optional[List[Team]] = None,
+        timestamp: Optional[int] = None,
+        player_team: Optional[int] = None,
+        opponent_team: Optional[int] = None,
+    ):
         if not replay_hash:
             replay_hash = Replay.hash_replay_from_path(path)
 
         if tags is None:
             tags = []
 
-        self.path = path
+        if teams is None:
+            teams = []
+
+        self.path = os.path.normpath(path)
         self.replay_hash = replay_hash
         self.tags = tags
+        self.teams = teams
+        self.timestamp = timestamp
+        self.player_team = player_team
+        self.opponent_team = opponent_team
 
     def add_tag(self, tag: str):
         if tag not in set(self.tags):

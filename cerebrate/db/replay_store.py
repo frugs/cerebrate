@@ -37,6 +37,7 @@ class ReplayStore:
         calculated_hash = Replay.hash_replay_data(replay_data)
         if replay_hash and calculated_hash != replay_hash:
             return None
+        replay_data.seek(0)
 
         canonical_path = os.path.join(
             self.__replay_archive_path, calculated_hash + ".SC2Replay"
@@ -47,11 +48,18 @@ class ReplayStore:
         return Replay(canonical_path, calculated_hash)
 
     def update_or_insert_replay(self, replay: Replay):
-        def update_tags(element):
+        def update_replay(element):
             element["tags"] = replay.tags
+            element["timestamp"] = replay.timestamp
+
+            if replay.player_team:
+                element["player_team"] = replay.player_team
+
+            if replay.opponent_team:
+                element["opponent_team"] = replay.opponent_team
 
         replay_updated = self.__db.update(
-            update_tags, tinydb.Query()["hash"] == replay.replay_hash
+            update_replay, tinydb.Query()["hash"] == replay.replay_hash
         )
         if not replay_updated:
             canonical_path = os.path.join(
@@ -64,6 +72,9 @@ class ReplayStore:
                     "hash": replay.replay_hash,
                     "canonical_path": canonical_path,
                     "tags": replay.tags,
+                    "timestamp": replay.timestamp,
+                    "player_team": replay.player_team,
+                    "opponent_team": replay.opponent_team,
                 }
             )
 
