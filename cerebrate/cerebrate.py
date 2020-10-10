@@ -27,7 +27,7 @@ class Cerebrate:
     ) -> Optional[Replay]:
         return self.replay_store.insert_replay_data(replay_data, replay_hash)
 
-    def save_replay_info(self, replay: Replay):
+    def update_replay_info(self, replay: Replay):
         self.replay_store.update_or_insert_replay(replay)
 
     def load_replay_info(self, replay: Replay) -> Replay:

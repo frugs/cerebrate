@@ -21,7 +21,7 @@ class Index(guy.Guy):
             return
 
         replay = Index.cerebrate.load_replay_info(replay)
-        Index.cerebrate.save_replay_info(replay)
+        Index.cerebrate.update_replay_info(replay)
         await self.js.replayLoaded(
             {
                 "replayId": replay.replay_hash,
@@ -34,14 +34,14 @@ class Index(guy.Guy):
             }
         )
 
-    async def submitTaggedReplay(self, payload: dict):
+    async def updateReplayInfo(self, payload: dict):
         with urllib.request.urlopen(payload["replayData"]) as replay_data:
             replay = Index.cerebrate.save_replay_data(replay_data, payload["replayId"])
         if not replay:
-            await self.js.replaySubmitted({"success": False})
+            await self.js.replayUpdated({"success": False})
             return
 
-        Index.cerebrate.save_replay_info(set_replay_info_from_payload(replay, payload))
+        Index.cerebrate.update_replay_info(set_replay_info_from_payload(replay, payload))
 
         await self.js.replayUpdated({"success": True, "replayId": replay.replay_hash})
 
