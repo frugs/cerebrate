@@ -2,7 +2,8 @@ import sc2reader.resources
 
 from cerebrate.core import Replay
 from cerebrate.core.replay import Team
-from cerebrate.processor.extractor import Extractor
+
+from .extractor import Extractor
 
 
 class TeamDataExtractor(Extractor):

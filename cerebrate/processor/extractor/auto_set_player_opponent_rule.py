@@ -2,7 +2,8 @@ from typing import Final
 
 from cerebrate.core import Replay
 from cerebrate.db import ReplayStore
-from cerebrate.processor.rule import Rule
+
+from .rule import Rule
 
 
 class AutoSetPlayerOpponentRule(Rule):

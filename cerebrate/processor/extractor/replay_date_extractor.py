@@ -1,7 +1,8 @@
 import sc2reader.resources
 
 from cerebrate.core import Replay
-from cerebrate.processor.extractor import Extractor
+
+from .extractor import Extractor
 
 
 class ReplayDateExtractor(Extractor):
