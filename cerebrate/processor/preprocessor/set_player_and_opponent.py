@@ -1,19 +1,21 @@
-from typing import Final
+from typing import Final, final
 
 from cerebrate.core import Replay
 from cerebrate.db import ReplayStore
+from cerebrate.processor.extractor import ReplayDataExtractor
 
-from .rule import Rule
+from .replay_preprocessor import ReplayPreprocessor
 
 
-class AutoSetPlayerOpponentRule(Rule):
+class SetPlayerAndOpponent(ReplayPreprocessor):
 
     replay_store: Final[ReplayStore]
 
     def __init__(self, replay_store: ReplayStore):
         self.replay_store = replay_store
 
-    def apply_replay_rule(self, replay: Replay) -> Replay:
+    @final
+    def preprocess_replay(self, replay: Replay, _: ReplayDataExtractor) -> Replay:
         if not replay.teams:
             return replay
 

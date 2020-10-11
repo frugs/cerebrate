@@ -1,17 +1,19 @@
-import sc2reader.resources
+from typing import final
 
 from cerebrate.core import Replay
 from cerebrate.core.replay import Team
+from cerebrate.processor.extractor import ReplayDataExtractor
 
-from .extractor import Extractor
+from . import ReplayPreprocessor
 
 
-class TeamDataExtractor(Extractor):
-    def extract_replay_info(
-        self, replay: Replay, sc2reader_replay: sc2reader.resources.Replay
+class SetTeams(ReplayPreprocessor):
+    @final
+    def preprocess_replay(
+        self, replay: Replay, replay_data_extractor: ReplayDataExtractor
     ) -> Replay:
         replay.teams.clear()
-        for team in sc2reader_replay.teams:
+        for team in replay_data_extractor.source_replay_data.teams:
             team_id = ";".join(player.toon_handle for player in team.players)
             team_name = " ".join(player.name for player in team.players)
             replay.teams.append(Team(team_id=team_id, name=team_name))
