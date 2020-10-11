@@ -4,7 +4,6 @@ from typing import ClassVar
 import guy
 
 from cerebrate.cerebrate import Cerebrate
-
 from cerebrate.core import Replay
 
 

@@ -1,1 +1,1 @@
-from .cerebrate import add_tag, remove_tag, query_replays, tag_frequency
+from .cerebrate import add_tag, query_replays, remove_tag, tag_frequency

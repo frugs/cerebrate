@@ -1,7 +1,7 @@
 import functools
 import hashlib
 import os
-from typing import Final, final, BinaryIO, List, Optional
+from typing import BinaryIO, Final, List, Optional, final
 
 
 @final

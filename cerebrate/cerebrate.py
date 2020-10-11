@@ -1,10 +1,10 @@
 import glob
 import os
-from typing import Final, Optional, BinaryIO
+from typing import BinaryIO, Final, Optional
 
 import click
 
-from cerebrate import replaysearch, replaymanager
+from cerebrate import replaymanager, replaysearch
 from cerebrate.core import Replay
 from cerebrate.db import ReplayStore
 from cerebrate.processor import ReplayProcessor
@@ -20,7 +20,7 @@ class Cerebrate:
 
     def __init__(self):
         self.replay_store = ReplayStore(APP_DATA_PATH)
-        self.replay_processor = ReplayProcessor()
+        self.replay_processor = ReplayProcessor(self.replay_store)
 
     def save_replay_data(
         self, replay_data: BinaryIO, replay_hash: Optional[str] = None

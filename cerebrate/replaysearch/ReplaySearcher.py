@@ -1,6 +1,6 @@
-import sys
-import os
 import glob
+import os
+import sys
 
 
 def find_most_recent_replay() -> str:
