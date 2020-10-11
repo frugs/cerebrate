@@ -1,14 +1,11 @@
 import os
 from typing import BinaryIO, Final, Optional
 
-from cerebrate import replaymanager
 from cerebrate.core import Replay
 from cerebrate.db import ReplayStore
 from cerebrate.processor import ReplayProcessor
 
 APP_DATA_PATH = os.path.normpath(os.path.expanduser("~/.cerebrate"))
-
-_replay_manager = replaymanager.ReplayManager(APP_DATA_PATH)
 
 
 class Cerebrate:
