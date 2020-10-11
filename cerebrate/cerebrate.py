@@ -4,6 +4,7 @@ from typing import BinaryIO, Final, Optional
 from cerebrate.core import Replay
 from cerebrate.db import ReplayStore
 from cerebrate.processor import ReplayProcessor
+from cerebrate.replaysearch import ReplaySearcher
 
 APP_DATA_PATH = os.path.normpath(os.path.expanduser("~/.cerebrate"))
 
@@ -34,3 +35,7 @@ class Cerebrate:
             return None
 
         return self.replay_processor.process_replay(result)
+
+    @staticmethod
+    def find_most_recent_replay_path() -> Optional[str]:
+        return ReplaySearcher.get_most_recently_played_replay_path()

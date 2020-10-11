@@ -29,8 +29,8 @@ class Replay:
     player_team: Optional[int]
     opponent_team: Optional[int]
 
-    @classmethod
-    def hash_replay_data(cls, replay_data: BinaryIO) -> str:
+    @staticmethod
+    def hash_replay_data(replay_data: BinaryIO) -> str:
         hash_calculator = hashlib.sha256()
 
         for buf in iter(functools.partial(replay_data.read, 4096), b""):
@@ -38,21 +38,21 @@ class Replay:
 
         return hash_calculator.hexdigest()
 
-    @classmethod
-    def hash_replay_from_path(cls, replay_path: str) -> str:
+    @staticmethod
+    def hash_replay_from_path(replay_path: str) -> str:
         with open(replay_path, "rb") as replay_file:
             return Replay.hash_replay_data(replay_file)
 
-    @classmethod
-    def create_player_tag(cls, tag_name: str):
+    @staticmethod
+    def create_player_tag(tag_name: str):
         return Replay.PLAYER_TAG_PREFIX + tag_name
 
-    @classmethod
-    def create_opponent_tag(cls, tag_name: str):
+    @staticmethod
+    def create_opponent_tag(tag_name: str):
         return Replay.OPP_TAG_PREFIX + tag_name
 
-    @classmethod
-    def create_game_tag(cls, tag_name: str):
+    @staticmethod
+    def create_game_tag(tag_name: str):
         return Replay.GAME_TAG_PREFIX + tag_name
 
     def __init__(

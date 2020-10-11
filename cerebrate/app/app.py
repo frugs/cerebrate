@@ -13,6 +13,32 @@ class Index(guy.Guy):
 
     cerebrate: ClassVar[Cerebrate] = Cerebrate()
 
+    async def selectMostRecentReplay(self):
+        replay_path = Cerebrate.find_most_recent_replay_path()
+        if not replay_path:
+            return
+
+        with open(replay_path, "rb") as replay_data:
+            replay = Index.cerebrate.save_replay_data(replay_data)
+        if not replay:
+            return
+
+        replay = Index.cerebrate.load_replay_info(replay)
+        Index.cerebrate.update_replay_info(replay)
+        await self.js.replayLoaded(
+            {
+                "replayId": replay.replay_hash,
+                "replayFileName": replay_path,
+                "replayTimestamp": replay.timestamp,
+                "teams": [team.name for team in replay.teams],
+                "playerTeam": replay.player_team,
+                "opponentTeam": replay.opponent_team,
+                "selectedTags": replay.tags,
+                "notes": "",
+                "force": True,
+            }
+        )
+
     async def selectReplay(self, payload: dict):
         with urllib.request.urlopen(payload["replayData"]) as replay_data:
             replay = Index.cerebrate.save_replay_data(replay_data, payload["replayId"])

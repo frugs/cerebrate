@@ -1,1 +1,1 @@
-from .ReplaySearcher import find_most_recent_replay
+from .replay_searcher import ReplaySearcher
