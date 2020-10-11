@@ -10,7 +10,7 @@ from cerebrate.core import Replay
 
 # noinspection PyPep8Naming
 class Index(guy.Guy):
-    size = (800, 800)
+    size = (1080, 800)
 
     cerebrate: ClassVar[Cerebrate] = Cerebrate()
 
