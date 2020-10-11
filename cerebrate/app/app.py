@@ -1,3 +1,5 @@
+import base64
+import os
 import urllib.request
 from typing import ClassVar
 
@@ -20,15 +22,20 @@ class Index(guy.Guy):
 
         with open(replay_path, "rb") as replay_data:
             replay = Index.cerebrate.save_replay_data(replay_data)
-        if not replay:
-            return
+            if not replay:
+                return
+
+            replay_data.seek(0)
+            prefix = "data:application/octet-stream;base64,"
+            data_url = prefix + base64.b64encode(replay_data.read()).decode("ascii")
 
         replay = Index.cerebrate.load_replay_info(replay)
         Index.cerebrate.update_replay_info(replay)
         await self.js.replayLoaded(
             {
                 "replayId": replay.replay_hash,
-                "replayFileName": replay_path,
+                "replayFileName": os.path.split(replay_path)[1],
+                "replayData": data_url,
                 "replayTimestamp": replay.timestamp,
                 "teams": [team.name for team in replay.teams],
                 "playerTeam": replay.player_team,
