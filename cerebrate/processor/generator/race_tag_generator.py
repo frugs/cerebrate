@@ -31,13 +31,19 @@ class RaceTagGenerator(TagGenerator):
     ) -> List[str]:
         tags = []
 
-        if not replay_data_extractor.player:
+        if (
+            not replay_data_extractor.player
+            or not replay_data_extractor.player.play_race
+        ):
             return tags
 
         player_race = replay_data_extractor.player.play_race.lower()
         tags.append(Replay.create_player_tag(player_race))
 
-        if not replay_data_extractor.opponent:
+        if (
+            not replay_data_extractor.opponent
+            or not replay_data_extractor.opponent.play_race
+        ):
             return tags
 
         opponent_race = replay_data_extractor.opponent.play_race.lower()
