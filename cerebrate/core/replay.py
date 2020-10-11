@@ -43,6 +43,18 @@ class Replay:
         with open(replay_path, "rb") as replay_file:
             return Replay.hash_replay_data(replay_file)
 
+    @classmethod
+    def create_player_tag(cls, tag_name: str):
+        return Replay.PLAYER_TAG_PREFIX + tag_name
+
+    @classmethod
+    def create_opponent_tag(cls, tag_name: str):
+        return Replay.OPP_TAG_PREFIX + tag_name
+
+    @classmethod
+    def create_game_tag(cls, tag_name: str):
+        return Replay.GAME_TAG_PREFIX + tag_name
+
     def __init__(
         self,
         path: str,
@@ -70,27 +82,15 @@ class Replay:
         self.player_team = player_team
         self.opponent_team = opponent_team
 
-    def add_tag(self, tag: str):
+    def append_tag(self, tag: str):
         if tag not in set(self.tags):
             self.tags.append(tag)
 
+    def prepend_tag(self, tag: str):
+        if tag not in set(self.tags):
+            new_tags = [tag] + self.tags
+            self.tags.clear()
+            self.tags.extend(new_tags)
+
     def remove_tag(self, tag: str):
         self.tags.remove(tag)
-
-    def add_player_tag(self, player_tag: str):
-        self.add_tag(Replay.PLAYER_TAG_PREFIX + player_tag)
-
-    def remove_player_tag(self, player_tag: str):
-        self.remove_tag(Replay.PLAYER_TAG_PREFIX + player_tag)
-
-    def add_opp_tag(self, opp_tag: str):
-        self.add_tag(Replay.OPP_TAG_PREFIX + opp_tag)
-
-    def remove_opp_tag(self, opp_tag: str):
-        self.remove_tag(Replay.OPP_TAG_PREFIX + opp_tag)
-
-    def add_game_tag(self, game_tag: str):
-        self.add_tag(Replay.GAME_TAG_PREFIX + game_tag)
-
-    def remove_game_tag(self, game_tag: str):
-        self.remove_tag(Replay.GAME_TAG_PREFIX + game_tag)
