@@ -9,8 +9,4 @@ from .set_teams_preprocessor import SetTeams
 
 
 def create_preprocessors(replay_store: ReplayStore) -> List[ReplayPreprocessor]:
-    return [
-        SetReplayTimestamp(),
-        SetTeams(),
-        SetPlayerAndOpponent(replay_store)
-    ]
+    return [SetReplayTimestamp(), SetTeams(), SetPlayerAndOpponent(replay_store)]

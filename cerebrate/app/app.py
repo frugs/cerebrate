@@ -62,7 +62,9 @@ class Index(guy.Guy):
             await self.js.replayUpdated({"success": False})
             return
 
-        Index.cerebrate.update_replay_info(set_replay_info_from_payload(replay, payload))
+        Index.cerebrate.update_replay_info(
+            set_replay_info_from_payload(replay, payload)
+        )
 
         await self.js.replayUpdated({"success": True, "replayId": replay.replay_hash})
 
