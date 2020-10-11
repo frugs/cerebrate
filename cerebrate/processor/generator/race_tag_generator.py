@@ -1,28 +1,16 @@
-from typing import Callable, Iterable, List
-
-import sc2reader.objects
-import sc2reader.resources
+from typing import Callable, List
 
 from cerebrate.core import Replay
 from cerebrate.processor.extractor import ReplayDataExtractor
+from cerebrate.util import flatten
 
 from .tag_generator import TagGenerator
 
-DEFAULT_RACE_NAMES = [
+RACE_NAMES = [
     "protoss",
     "terran",
     "zerg",
 ]
-
-
-def _flatten(iterable_to_flatten: Iterable[Iterable]):
-    return [item for sublist in iterable_to_flatten for item in sublist]
-
-
-def _remove_race_tags(tag_factory: Callable[[str], str], replay: Replay) -> Replay:
-    for race_tag in [tag_factory(race_name) for race_name in DEFAULT_RACE_NAMES]:
-        replay.remove_tag(race_tag)
-    return replay
 
 
 class RaceTagGenerator(TagGenerator):
@@ -31,9 +19,9 @@ class RaceTagGenerator(TagGenerator):
             Replay.create_player_tag,
             Replay.create_opponent_tag,
         ]
-        return _flatten(
+        return flatten(
             [
-                [race_tag_factory(race_name) for race_name in DEFAULT_RACE_NAMES]
+                [race_tag_factory(race_name) for race_name in RACE_NAMES]
                 for race_tag_factory in race_tag_factories
             ]
         )

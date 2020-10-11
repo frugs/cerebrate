@@ -4,7 +4,7 @@ from cerebrate.core import Replay
 from cerebrate.core.replay import Team
 from cerebrate.processor.extractor import ReplayDataExtractor
 
-from . import ReplayPreprocessor
+from .replay_preprocessor import ReplayPreprocessor
 
 
 class SetTeams(ReplayPreprocessor):
