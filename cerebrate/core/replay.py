@@ -93,4 +93,5 @@ class Replay:
             self.tags.extend(new_tags)
 
     def remove_tag(self, tag: str):
-        self.tags.remove(tag)
+        if tag in set(self.tags):
+            self.tags.remove(tag)

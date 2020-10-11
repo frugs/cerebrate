@@ -1,9 +1,23 @@
+from typing import Callable
+
 import sc2reader.objects
 import sc2reader.resources
 
 from cerebrate.core import Replay
 
 from .extractor import Extractor
+
+DEFAULT_RACE_NAMES = [
+    "protoss",
+    "terran",
+    "zerg",
+]
+
+
+def _remove_race_tags(tag_factory: Callable[[str], str], replay: Replay) -> Replay:
+    for race_tag in [tag_factory(race_name) for race_name in DEFAULT_RACE_NAMES]:
+        replay.remove_tag(race_tag)
+    return replay
 
 
 class PlayerOpponentRaceExtractor(Extractor):
@@ -25,9 +39,12 @@ class PlayerOpponentRaceExtractor(Extractor):
         player_team_sole_player: sc2reader.objects.Player = (
             sc2reader_player_team.players[0]
         )
-        replay.prepend_tag(
-            Replay.create_player_tag(player_team_sole_player.pick_race.lower())
+        player_race_tag = Replay.create_player_tag(
+            player_team_sole_player.pick_race.lower()
         )
+
+        replay = _remove_race_tags(Replay.create_player_tag, replay)
+        replay.prepend_tag(player_race_tag)
 
         if (
             replay.opponent_team is None
@@ -42,8 +59,11 @@ class PlayerOpponentRaceExtractor(Extractor):
             return replay
 
         opp_team_sole_player: sc2reader.objects.Player = sc2reader_opp_team.players[0]
-        replay.prepend_tag(
-            Replay.create_opponent_tag(opp_team_sole_player.pick_race.lower())
+        opp_race_tag = Replay.create_opponent_tag(
+            opp_team_sole_player.pick_race.lower()
         )
+
+        replay = _remove_race_tags(Replay.create_opponent_tag, replay)
+        replay.prepend_tag(opp_race_tag)
 
         return replay
