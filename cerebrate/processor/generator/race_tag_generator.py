@@ -29,7 +29,7 @@ class RaceTagGenerator(TagGenerator):
     def generate_tags(
         self, replay: Replay, replay_data_extractor: ReplayDataExtractor
     ) -> List[str]:
-        tags = []
+        tags: List[str] = []
 
         if (
             not replay_data_extractor.player
