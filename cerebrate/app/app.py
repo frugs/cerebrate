@@ -34,6 +34,28 @@ class Index(guy.Guy):
             }
         )
 
+    async def selectPlayerOpponent(self, payload: dict):
+        replay = self.cerebrate.find_replay(payload["replayId"])
+        if not replay:
+            return
+
+        replay.player_team = payload["playerTeam"]
+        replay.opponent_team = payload["opponentTeam"]
+        Index.cerebrate.update_replay_info(replay)
+        replay = Index.cerebrate.load_replay_info(replay)
+
+        await self.js.replayLoaded(
+            {
+                "replayId": replay.replay_hash,
+                "replayTimestamp": replay.timestamp,
+                "teams": [team.name for team in replay.teams],
+                "playerTeam": replay.player_team,
+                "opponentTeam": replay.opponent_team,
+                "selectedTags": replay.tags,
+                "notes": "",
+            }
+        )
+
     async def updateReplayInfo(self, payload: dict):
         with urllib.request.urlopen(payload["replayData"]) as replay_data:
             replay = Index.cerebrate.save_replay_data(replay_data, payload["replayId"])

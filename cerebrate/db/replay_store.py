@@ -52,10 +52,10 @@ class ReplayStore:
             element["tags"] = replay.tags
             element["timestamp"] = replay.timestamp
 
-            if replay.player_team:
+            if replay.player_team is not None:
                 element["player_team"] = replay.player_team
 
-            if replay.opponent_team:
+            if replay.opponent_team is not None:
                 element["opponent_team"] = replay.opponent_team
 
         replay_updated = self.__db.update(
@@ -84,7 +84,12 @@ class ReplayStore:
             return None
 
         return Replay(
-            path=result["canonical_path"], replay_hash=replay_hash, tags=result["tags"]
+            path=result["canonical_path"],
+            replay_hash=replay_hash,
+            tags=result["tags"],
+            timestamp=result["timestamp"],
+            player_team=result["player_team"],
+            opponent_team=result["opponent_team"],
         )
 
     def query_replays(self, replay_query: ReplayQuery) -> List[Replay]:

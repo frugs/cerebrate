@@ -34,6 +34,13 @@ class Cerebrate:
         result = self.replay_store.find_replay_by_hash(replay.replay_hash)
         return self.replay_processor.process_replay(result if result else replay)
 
+    def find_replay(self, replay_hash: str) -> Optional[Replay]:
+        result = self.replay_store.find_replay_by_hash(replay_hash)
+        if not result:
+            return None
+
+        return self.replay_processor.process_replay(result)
+
 
 def add_tag(most_recent_replay, replay, tags):
     """
