@@ -62,7 +62,7 @@ class Index(guy.Guy):
                 "playerTeam": replay.player_team,
                 "opponentTeam": replay.opponent_team,
                 "selectedTags": replay.tags,
-                "notes": "",
+                "notes": replay.notes,
             }
         )
 
@@ -84,7 +84,7 @@ class Index(guy.Guy):
                 "playerTeam": replay.player_team,
                 "opponentTeam": replay.opponent_team,
                 "selectedTags": replay.tags,
-                "notes": "",
+                "notes": replay.notes,
             }
         )
 
@@ -104,6 +104,7 @@ class Index(guy.Guy):
 
 def set_replay_info_from_payload(replay: Replay, payload: dict) -> Replay:
     replay.tags.extend(payload["selectedTags"])
+    replay.notes = payload["notes"]
     replay.player_team = payload["playerTeam"]
     replay.opponent_team = payload["opponentTeam"]
     return replay

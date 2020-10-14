@@ -24,6 +24,7 @@ class Replay:
     replay_hash: Final[str]
 
     tags: Final[List[str]]
+    notes: str
     teams: Final[List[Team]]
     timestamp: Optional[int]
     player_team: Optional[int]
@@ -60,6 +61,7 @@ class Replay:
         path: str,
         replay_hash: str = "",
         tags: Optional[List[str]] = None,
+        notes: Optional[str] = None,
         teams: Optional[List[Team]] = None,
         timestamp: Optional[int] = None,
         player_team: Optional[int] = None,
@@ -71,12 +73,16 @@ class Replay:
         if tags is None:
             tags = []
 
+        if notes is None:
+            notes = ""
+
         if teams is None:
             teams = []
 
         self.path = os.path.normpath(path)
         self.replay_hash = replay_hash
         self.tags = tags
+        self.notes = notes
         self.teams = teams
         self.timestamp = timestamp
         self.player_team = player_team

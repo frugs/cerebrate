@@ -51,6 +51,7 @@ class ReplayStore:
     def update_or_insert_replay(self, replay: Replay):
         def update_replay(element):
             element["tags"] = replay.tags
+            element["notes"] = replay.notes
 
             if replay.player_team is not None:
                 element["player_team"] = replay.player_team
@@ -72,6 +73,7 @@ class ReplayStore:
                     "hash": replay.replay_hash,
                     "canonical_path": canonical_path,
                     "tags": replay.tags,
+                    "notes": replay.notes,
                     "teams": [team.team_id for team in replay.teams],
                     "timestamp": replay.timestamp,
                     "player_team": replay.player_team,
@@ -88,6 +90,7 @@ class ReplayStore:
             path=result["canonical_path"],
             replay_hash=replay_hash,
             tags=result["tags"],
+            notes=result["notes"],
             timestamp=result["timestamp"],
             player_team=result["player_team"],
             opponent_team=result["opponent_team"],

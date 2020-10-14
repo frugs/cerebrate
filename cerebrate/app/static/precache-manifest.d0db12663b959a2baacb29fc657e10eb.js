@@ -1,6 +1,6 @@
 self.__precacheManifest = (self.__precacheManifest || []).concat([
   {
-    "revision": "9a1a61f0001370720106157f2d5a82ae",
+    "revision": "35a281334a771b6c6dd3b7cb70864efe",
     "url": "/index.html"
   },
   {
@@ -8,8 +8,8 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/static/css/2.57eef129.chunk.css"
   },
   {
-    "revision": "d3a652bea6310817d8b8",
-    "url": "/static/css/main.af6ae02b.chunk.css"
+    "revision": "48478b394502e6a66a17",
+    "url": "/static/css/main.77d57898.chunk.css"
   },
   {
     "revision": "6347d7aa3e43577330b2",
@@ -20,12 +20,20 @@ self.__precacheManifest = (self.__precacheManifest || []).concat([
     "url": "/static/js/2.04a4a462.chunk.js.LICENSE.txt"
   },
   {
-    "revision": "d3a652bea6310817d8b8",
-    "url": "/static/js/main.e8ddb14b.chunk.js"
+    "revision": "48478b394502e6a66a17",
+    "url": "/static/js/main.9723f065.chunk.js"
   },
   {
     "revision": "05464846e52741dbaf0a",
     "url": "/static/js/runtime-main.197a0697.js"
+  },
+  {
+    "revision": "1588b6ee947e355d852ee3949a15678e",
+    "url": "/static/media/AstroSpace-0Wl3o.1588b6ee.otf"
+  },
+  {
+    "revision": "5892adccd6c4b8c9e80f005e7eef06f2",
+    "url": "/static/media/AstroSpace-eZ2Bg.5892adcc.ttf"
   },
   {
     "revision": "05f1cdadfe476395f60e233b15c22155",
