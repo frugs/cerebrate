@@ -119,13 +119,21 @@ class ReplayStore:
 
     def get_tag_frequency_table(self, filter_tags: List[str]) -> typing.OrderedDict:
         frequency_table = {}
+        filter_tags_set = set(filter_tags)
 
-        tagged_replays = self._db.search(tinydb.where("tags") != None)
+        tag_query = (
+            tinydb.where("tags").test(
+                lambda tags: tags and filter_tags_set.issubset(tags)
+            )
+            if filter_tags
+            else (tinydb.where("tags") != None)
+        )
+        tagged_replays = self._db.search(tag_query)
         for replay in tagged_replays:
             for tag in replay["tags"]:
-                if tag not in frequency_table:
+                if tag not in frequency_table and tag not in filter_tags:
                     frequency_table[tag] = self._db.count(
-                        (tinydb.where("tags") != None)
+                        tag_query
                         & (tinydb.where("tags").test(lambda tags: tag in tags))
                     )
         return OrderedDict(
