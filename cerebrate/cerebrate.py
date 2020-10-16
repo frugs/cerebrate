@@ -1,5 +1,5 @@
 import os
-from typing import BinaryIO, Final, Optional
+from typing import BinaryIO, Final, Optional, List, OrderedDict
 
 from cerebrate.core import Replay
 from cerebrate.db import ReplayStore
@@ -12,6 +12,10 @@ APP_DATA_PATH = os.path.normpath(os.path.expanduser("~/.cerebrate"))
 class Cerebrate:
     replay_store: Final[ReplayStore]
     replay_processor: Final[ReplayProcessor]
+
+    @staticmethod
+    def find_most_recent_replay_path() -> Optional[str]:
+        return ReplaySearcher.get_most_recently_played_replay_path()
 
     def __init__(self):
         self.replay_store = ReplayStore(APP_DATA_PATH)
@@ -36,6 +40,5 @@ class Cerebrate:
 
         return self.replay_processor.process_replay(result)
 
-    @staticmethod
-    def find_most_recent_replay_path() -> Optional[str]:
-        return ReplaySearcher.get_most_recently_played_replay_path()
+    def get_tag_frequency_table(self, filter_tags: List[str]) -> OrderedDict:
+        return self.replay_store.get_tag_frequency_table(filter_tags)

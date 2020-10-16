@@ -1,5 +1,7 @@
 import os
 import shutil
+import typing
+from collections import OrderedDict
 from typing import BinaryIO, Final, List, Optional
 
 import tinydb
@@ -112,5 +114,24 @@ class ReplayStore:
                 document["teams"][document["player_team"]]
                 for document in result
                 if is_valid_doc(document)
+            )
+        )
+
+    def get_tag_frequency_table(self, filter_tags: List[str]) -> typing.OrderedDict:
+        frequency_table = {}
+
+        tagged_replays = self._db.search(tinydb.where("tags") != None)
+        for replay in tagged_replays:
+            for tag in replay["tags"]:
+                if tag not in frequency_table:
+                    frequency_table[tag] = self._db.count(
+                        (tinydb.where("tags") != None)
+                        & (tinydb.where("tags").test(lambda tags: tag in tags))
+                    )
+        return OrderedDict(
+            sorted(
+                ((tag, freq) for tag, freq in frequency_table.items()),
+                key=lambda x: x[1],
+                reverse=True,
             )
         )

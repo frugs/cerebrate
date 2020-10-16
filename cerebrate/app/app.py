@@ -1,7 +1,7 @@
 import base64
 import os
 import urllib.request
-from typing import ClassVar
+from typing import ClassVar, List
 
 import guy
 
@@ -100,6 +100,16 @@ class Index(guy.Guy):
         )
 
         await self.js.replayUpdated({"success": True, "replayId": replay.replay_hash})
+
+    async def fetchTagFrequencyTable(self, filter_tags: List[str]):
+        frequency_table = self.cerebrate.get_tag_frequency_table(filter_tags)
+        return [
+            {
+                "tag": tag,
+                "frequency": frequency,
+            }
+            for tag, frequency in frequency_table.items()
+        ]
 
 
 def set_replay_info_from_payload(replay: Replay, payload: dict) -> Replay:
