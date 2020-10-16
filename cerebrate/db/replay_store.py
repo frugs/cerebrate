@@ -2,12 +2,24 @@ import os
 import shutil
 import typing
 from collections import OrderedDict
-from typing import BinaryIO, Final, List, Optional
+from typing import BinaryIO, Final, List, Optional, Iterable
 
 import tinydb
 
 from cerebrate.core.replay import Replay
 from cerebrate.db.replay_query import ReplayQuery
+
+
+def _replay_from_doc(doc: dict) -> Replay:
+    return Replay(
+        path=doc["canonical_path"],
+        replay_hash=doc["hash"],
+        tags=doc.get("tags"),
+        notes=doc.get("notes"),
+        timestamp=doc.get("timestamp"),
+        player_team=doc.get("player_team"),
+        opponent_team=doc.get("opponent_team"),
+    )
 
 
 class ReplayStore:
@@ -85,18 +97,10 @@ class ReplayStore:
 
     def find_replay_by_hash(self, replay_hash: str) -> Optional[Replay]:
         result = self._db.get(tinydb.where("hash") == replay_hash)
-        if not result:
-            return None
+        return _replay_from_doc(result) if result else None
 
-        return Replay(
-            path=result["canonical_path"],
-            replay_hash=replay_hash,
-            tags=result["tags"],
-            notes=result["notes"],
-            timestamp=result["timestamp"],
-            player_team=result["player_team"],
-            opponent_team=result["opponent_team"],
-        )
+    def all_replays(self) -> Iterable[Replay]:
+        return (_replay_from_doc(doc) for doc in self._db.all())
 
     def query_replays(self, replay_query: ReplayQuery) -> List[Replay]:
         return []
