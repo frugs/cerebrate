@@ -6,15 +6,27 @@ from typing import BinaryIO, Final, List, Optional, Iterable, Set
 
 import tinydb
 
-from cerebrate.core.replay import Replay
+from cerebrate.core.replay import Replay, Team
 
 
 def _replay_from_doc(doc: dict) -> Replay:
+    teams = None
+    if (
+        doc.get("teams")
+        and doc.get("team_names")
+        and len(doc.get("teams")) == len(doc.get("team_names"))
+    ):
+        teams = [
+            Team(team_id, name)
+            for team_id, name in zip(doc.get("teams"), doc.get("team_names"))
+        ]
+
     return Replay(
         path=doc["canonical_path"],
         replay_hash=doc["hash"],
         tags=doc.get("tags"),
         notes=doc.get("notes"),
+        teams=teams,
         timestamp=doc.get("timestamp"),
         player_team=doc.get("player_team"),
         opponent_team=doc.get("opponent_team"),
@@ -69,7 +81,7 @@ class ReplayStore:
 
         return Replay(canonical_path, calculated_hash)
 
-    def update_or_insert_replay(self, replay: Replay):
+    def update_or_insert_replay(self, replay: Replay, overwrite_all: bool = False):
         def update_replay(element):
             element["tags"] = replay.tags
             element["notes"] = replay.notes
@@ -79,6 +91,12 @@ class ReplayStore:
 
             if replay.opponent_team is not None:
                 element["opponent_team"] = replay.opponent_team
+
+            if overwrite_all:
+                element["canonical_path"] = replay.path
+                element["teams"] = [team.team_id for team in replay.teams]
+                element["team_names"] = [team.name for team in replay.teams]
+                element["timestamp"] = replay.timestamp
 
         replay_updated = self._db.update(
             update_replay, tinydb.Query()["hash"] == replay.replay_hash
@@ -96,6 +114,7 @@ class ReplayStore:
                     "tags": replay.tags,
                     "notes": replay.notes,
                     "teams": [team.team_id for team in replay.teams],
+                    "team_names": [team.name for team in replay.teams],
                     "timestamp": replay.timestamp,
                     "player_team": replay.player_team,
                     "opponent_team": replay.opponent_team,

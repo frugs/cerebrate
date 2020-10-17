@@ -106,6 +106,8 @@ class Index(guy.Guy):
         return [
             {
                 "replayId": replay.replay_hash,
+                "replayTimestamp": replay.timestamp,
+                "teams": [team.name for team in replay.teams],
                 "notes": replay.notes,
             }
             for replay in replays

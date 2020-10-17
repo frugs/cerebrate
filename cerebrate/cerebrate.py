@@ -47,7 +47,7 @@ class Cerebrate:
         replays = self.replay_store.all_replays()
         for replay in replays:
             replay = self.replay_processor.process_replay(replay)
-            self.replay_store.update_or_insert_replay(replay)
+            self.replay_store.update_or_insert_replay(replay, overwrite_all=True)
 
     def get_tag_frequency_table(self, filter_tags: List[str]) -> OrderedDict:
         return self.replay_store.get_tag_frequency_table(filter_tags)
