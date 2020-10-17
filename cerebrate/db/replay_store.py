@@ -2,12 +2,11 @@ import os
 import shutil
 import typing
 from collections import OrderedDict
-from typing import BinaryIO, Final, List, Optional, Iterable
+from typing import BinaryIO, Final, List, Optional, Iterable, Set
 
 import tinydb
 
 from cerebrate.core.replay import Replay
-from cerebrate.db.replay_query import ReplayQuery
 
 
 def _replay_from_doc(doc: dict) -> Replay:
@@ -19,6 +18,14 @@ def _replay_from_doc(doc: dict) -> Replay:
         timestamp=doc.get("timestamp"),
         player_team=doc.get("player_team"),
         opponent_team=doc.get("opponent_team"),
+    )
+
+
+def _query_from_filter_tags(filter_tags_set: Set[str]):
+    return (
+        tinydb.where("tags").test(lambda tags: tags and filter_tags_set.issubset(tags))
+        if filter_tags_set
+        else (tinydb.where("tags") != None)
     )
 
 
@@ -102,8 +109,12 @@ class ReplayStore:
     def all_replays(self) -> Iterable[Replay]:
         return (_replay_from_doc(doc) for doc in self._db.all())
 
-    def query_replays(self, replay_query: ReplayQuery) -> List[Replay]:
-        return []
+    def query_replays(self, filter_tags: List[str]) -> Iterable[Replay]:
+        if not filter_tags:
+            return self.all_replays()
+
+        docs = self._db.search(_query_from_filter_tags(set(filter_tags)))
+        return (_replay_from_doc(doc) for doc in docs)
 
     def get_replay_player_team_ids(self) -> List[str]:
         result = self._db.search(
@@ -123,15 +134,7 @@ class ReplayStore:
 
     def get_tag_frequency_table(self, filter_tags: List[str]) -> typing.OrderedDict:
         frequency_table = {}
-        filter_tags_set = set(filter_tags)
-
-        tag_query = (
-            tinydb.where("tags").test(
-                lambda tags: tags and filter_tags_set.issubset(tags)
-            )
-            if filter_tags
-            else (tinydb.where("tags") != None)
-        )
+        tag_query = _query_from_filter_tags(set(filter_tags))
         tagged_replays = self._db.search(tag_query)
         for replay in tagged_replays:
             for tag in replay["tags"]:

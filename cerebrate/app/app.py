@@ -101,6 +101,16 @@ class Index(guy.Guy):
 
         await self.js.replayUpdated({"success": True, "replayId": replay.replay_hash})
 
+    async def fetchReplaySummaries(self, filter_tags: List[str]):
+        replays = self.cerebrate.find_replays(filter_tags)
+        return [
+            {
+                "replayId": replay.replay_hash,
+                "notes": replay.notes,
+            }
+            for replay in replays
+        ]
+
     async def fetchTagFrequencyTable(self, filter_tags: List[str]):
         frequency_table = self.cerebrate.get_tag_frequency_table(filter_tags)
         return [

@@ -1,5 +1,5 @@
 import os
-from typing import BinaryIO, Final, Optional, List, OrderedDict
+from typing import BinaryIO, Final, Optional, List, OrderedDict, Iterable
 
 from cerebrate.core import Replay
 from cerebrate.db import ReplayStore
@@ -39,6 +39,9 @@ class Cerebrate:
             return None
 
         return self.replay_processor.process_replay(result)
+
+    def find_replays(self, filter_tags: List[str]) -> Iterable[Replay]:
+        return self.replay_store.query_replays(filter_tags)
 
     def regenerate_saved_replay_info(self):
         replays = self.replay_store.all_replays()
