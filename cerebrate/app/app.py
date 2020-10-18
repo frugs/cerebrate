@@ -97,9 +97,13 @@ class Index(guy.Guy):
         await self.js.replayUpdated({"success": True, "replayId": replay.replay_hash})
 
     async def findReplays(self, payload: dict):
-        replays = self.cerebrate.find_replays(ReplayQuery(payload.get("includeTags")))
+        query = ReplayQuery(
+            include_tags=payload.get("includeTags"),
+            exclude_tags=payload.get("excludeTags"),
+        )
+        replays = self.cerebrate.find_replays(query)
         frequency_table = self.cerebrate.calculate_tag_frequency_table(
-            replays, payload.get("includeTags")
+            replays, query.include_tags
         )
 
         return {

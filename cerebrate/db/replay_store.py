@@ -34,11 +34,14 @@ def _replay_from_doc(doc: dict) -> Replay:
 
 
 def _make_db_query(query: ReplayQuery) -> tinydb.Query:
-    filter_tags_set = set(query.include_tags)
-    return (
-        tinydb.where("tags").test(lambda tags: tags and filter_tags_set.issubset(tags))
-        if filter_tags_set
-        else (tinydb.where("tags").test(lambda tags: tags))
+    include_tags_set = set(query.include_tags)
+    exclude_tags_set = set(query.exclude_tags)
+
+    doc = tinydb.Query()
+    return doc["tags"].test(
+        lambda replay_tags: replay_tags
+        and (not include_tags_set or include_tags_set.issubset(replay_tags))
+        and (not exclude_tags_set or not exclude_tags_set.issubset(replay_tags))
     )
 
 
