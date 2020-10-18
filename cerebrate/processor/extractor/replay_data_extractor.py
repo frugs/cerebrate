@@ -10,8 +10,8 @@ from cerebrate.core import Replay
 class ReplayDataExtractor:
     _player_team: Optional[sc2reader.objects.Team]
     _opponent_team: Optional[sc2reader.objects.Team]
-    _player: Optional[sc2reader.objects.Player]
-    _opponent: Optional[sc2reader.objects.Player]
+    _player: Optional[sc2reader.objects.Participant]
+    _opponent: Optional[sc2reader.objects.Participant]
 
     replay_info: Final[Replay]
     source_replay_data: Final[sc2reader.resources.Replay]
@@ -57,7 +57,7 @@ class ReplayDataExtractor:
         return self._opponent_team
 
     @property
-    def player(self) -> Optional[sc2reader.objects.Player]:
+    def player(self) -> Optional[sc2reader.objects.Participant]:
         if self._player:
             return self._player
 
@@ -68,7 +68,7 @@ class ReplayDataExtractor:
         return self._player
 
     @property
-    def opponent(self) -> Optional[sc2reader.objects.Player]:
+    def opponent(self) -> Optional[sc2reader.objects.Participant]:
         if self._opponent:
             return self._opponent
 

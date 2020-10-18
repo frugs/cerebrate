@@ -1,5 +1,7 @@
 from typing import List
 
+from .ai_tag_generator import AITagGenerator
+from .game_type_tag_generator import GameTypeTagGenerator
 from .matchup_tag_generator import MatchupTagGenerator
 from .race_tag_generator import RaceTagGenerator
 from .random_tag_generator import RandomTagGenerator
@@ -13,4 +15,6 @@ def create_tag_generators() -> List[TagGenerator]:
         RandomTagGenerator(),
         ResultTagGenerator(),
         MatchupTagGenerator(),
+        AITagGenerator(),
+        GameTypeTagGenerator(),
     ]
