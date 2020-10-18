@@ -1,12 +1,12 @@
 import os
 import shutil
-import typing
-from collections import OrderedDict
-from typing import BinaryIO, Final, List, Optional, Iterable, Set
+from typing import BinaryIO, Final, List, Optional
 
 import tinydb
+import tinydb.table
 
 from cerebrate.core.replay import Replay, Team
+from cerebrate.core.replay_query import ReplayQuery
 
 
 def _replay_from_doc(doc: dict) -> Replay:
@@ -33,11 +33,12 @@ def _replay_from_doc(doc: dict) -> Replay:
     )
 
 
-def _query_from_filter_tags(filter_tags_set: Set[str]):
+def _make_db_query(query: ReplayQuery) -> tinydb.Query:
+    filter_tags_set = set(query.include_tags)
     return (
         tinydb.where("tags").test(lambda tags: tags and filter_tags_set.issubset(tags))
         if filter_tags_set
-        else (tinydb.where("tags") != None)
+        else (tinydb.where("tags").test(lambda tags: tags))
     )
 
 
@@ -46,6 +47,7 @@ class ReplayStore:
     _DB_FILE_NAME: Final = "replays.json"
 
     _db: Final[tinydb.TinyDB]
+    _table: Final[tinydb.table.Table]
     _replay_archive_path: Final[str]
 
     def __init__(self, db_data_path: str):
@@ -63,6 +65,7 @@ class ReplayStore:
             open(db_path, "a").close()
 
         self._db = tinydb.TinyDB(db_path)
+        self._table = self._db.table(tinydb.TinyDB.default_table_name)
         self._replay_archive_path = replay_archive_path
 
     def insert_replay_data(
@@ -82,24 +85,25 @@ class ReplayStore:
         return Replay(canonical_path, calculated_hash)
 
     def update_or_insert_replay(self, replay: Replay, overwrite_all: bool = False):
-        def update_replay(element):
-            element["tags"] = replay.tags
-            element["notes"] = replay.notes
+        fields = {
+            "tags": replay.tags,
+            "notes": replay.notes,
+            **({"player_team": replay.player_team} if replay.player_team else {}),
+            **({"player_team": replay.opponent_team} if replay.opponent_team else {}),
+            **(
+                {
+                    "canonical_path": replay.path,
+                    "teams": [team.team_id for team in replay.teams],
+                    "team_names": [team.name for team in replay.teams],
+                    "timestamp": replay.timestamp,
+                }
+                if overwrite_all
+                else {}
+            ),
+        }
 
-            if replay.player_team is not None:
-                element["player_team"] = replay.player_team
-
-            if replay.opponent_team is not None:
-                element["opponent_team"] = replay.opponent_team
-
-            if overwrite_all:
-                element["canonical_path"] = replay.path
-                element["teams"] = [team.team_id for team in replay.teams]
-                element["team_names"] = [team.name for team in replay.teams]
-                element["timestamp"] = replay.timestamp
-
-        replay_updated = self._db.update(
-            update_replay, tinydb.Query()["hash"] == replay.replay_hash
+        replay_updated = self._table.update(
+            fields, tinydb.Query()["hash"] == replay.replay_hash
         )
         if not replay_updated:
             canonical_path = os.path.join(
@@ -107,7 +111,7 @@ class ReplayStore:
             )
             if canonical_path != replay.path:
                 shutil.copyfile(replay.path, canonical_path)
-            self._db.insert(
+            self._table.insert(
                 {
                     "hash": replay.replay_hash,
                     "canonical_path": canonical_path,
@@ -122,21 +126,18 @@ class ReplayStore:
             )
 
     def find_replay_by_hash(self, replay_hash: str) -> Optional[Replay]:
-        result = self._db.get(tinydb.where("hash") == replay_hash)
+        result = self._table.get(tinydb.where("hash") == replay_hash)
         return _replay_from_doc(result) if result else None
 
-    def all_replays(self) -> Iterable[Replay]:
-        return (_replay_from_doc(doc) for doc in self._db.all())
+    def query_replays(self, query: ReplayQuery) -> List[Replay]:
+        docs = self._table.search(_make_db_query(query))
+        return [_replay_from_doc(doc) for doc in docs]
 
-    def query_replays(self, filter_tags: List[str]) -> Iterable[Replay]:
-        if not filter_tags:
-            return self.all_replays()
-
-        docs = self._db.search(_query_from_filter_tags(set(filter_tags)))
-        return (_replay_from_doc(doc) for doc in docs)
+    def all_replays(self) -> List[Replay]:
+        return [_replay_from_doc(doc) for doc in self._table.all()]
 
     def get_replay_player_team_ids(self) -> List[str]:
-        result = self._db.search(
+        result = self._table.search(
             (tinydb.where("player_team") != None) & (tinydb.where("teams") != None)
         )
 
@@ -148,24 +149,5 @@ class ReplayStore:
                 document["teams"][document["player_team"]]
                 for document in result
                 if is_valid_doc(document)
-            )
-        )
-
-    def get_tag_frequency_table(self, filter_tags: List[str]) -> typing.OrderedDict:
-        frequency_table = {}
-        tag_query = _query_from_filter_tags(set(filter_tags))
-        tagged_replays = self._db.search(tag_query)
-        for replay in tagged_replays:
-            for tag in replay["tags"]:
-                if tag not in frequency_table and tag not in filter_tags:
-                    frequency_table[tag] = self._db.count(
-                        tag_query
-                        & (tinydb.where("tags").test(lambda tags: tag in tags))
-                    )
-        return OrderedDict(
-            sorted(
-                ((tag, freq) for tag, freq in frequency_table.items()),
-                key=lambda x: x[1],
-                reverse=True,
             )
         )

@@ -1,12 +1,21 @@
 import os
-from typing import BinaryIO, Final, Optional, List, OrderedDict, Iterable
+from typing import BinaryIO, Final, Optional, List, Dict
+
+import collections
+import typing
 
 from cerebrate.core import Replay
 from cerebrate.db import ReplayStore
+from cerebrate.core.replay_query import ReplayQuery
 from cerebrate.processor import ReplayProcessor
 from cerebrate.replaysearch import ReplaySearcher
+from cerebrate.util import flatten
 
 APP_DATA_PATH = os.path.normpath(os.path.expanduser("~/.cerebrate"))
+
+
+def _calculate_tag_frequency(tag: str, replays: List[Replay]) -> int:
+    return sum([1 if tag in replay.tags else 0 for replay in replays])
 
 
 class Cerebrate:
@@ -40,14 +49,28 @@ class Cerebrate:
 
         return self.replay_processor.process_replay(result)
 
-    def find_replays(self, filter_tags: List[str]) -> Iterable[Replay]:
-        return self.replay_store.query_replays(filter_tags)
+    def find_replays(self, query: ReplayQuery) -> List[Replay]:
+        return self.replay_store.query_replays(query)
+
+    @staticmethod
+    def calculate_tag_frequency_table(
+        replays: List[Replay], ignore_tags: List[str]
+    ) -> typing.OrderedDict[str, int]:
+        tag_set = set(flatten(replay.tags for replay in replays))
+        frequency_table: Dict[str, int] = dict(
+            (tag, _calculate_tag_frequency(tag, replays))
+            for tag in tag_set.difference(ignore_tags)
+        )
+        return collections.OrderedDict(
+            sorted(
+                ((tag, freq) for tag, freq in frequency_table.items()),
+                key=lambda x: x[1],
+                reverse=True,
+            )
+        )
 
     def regenerate_saved_replay_info(self):
         replays = self.replay_store.all_replays()
         for replay in replays:
             replay = self.replay_processor.process_replay(replay)
             self.replay_store.update_or_insert_replay(replay, overwrite_all=True)
-
-    def get_tag_frequency_table(self, filter_tags: List[str]) -> OrderedDict:
-        return self.replay_store.get_tag_frequency_table(filter_tags)

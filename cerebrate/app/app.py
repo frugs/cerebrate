@@ -1,12 +1,33 @@
 import base64
 import os
 import urllib.request
-from typing import ClassVar, List
+from typing import ClassVar
 
 import guy
 
 from cerebrate.cerebrate import Cerebrate
 from cerebrate.core import Replay
+from cerebrate.core.replay_query import ReplayQuery
+
+
+def _make_replay_payload(replay: Replay) -> dict:
+    return {
+        "replayId": replay.replay_hash,
+        "replayTimestamp": replay.timestamp,
+        "teams": [team.name for team in replay.teams],
+        "playerTeam": replay.player_team,
+        "opponentTeam": replay.opponent_team,
+        "selectedTags": replay.tags,
+        "notes": "",
+    }
+
+
+def _set_replay_info_from_payload(replay: Replay, payload: dict) -> Replay:
+    replay.tags.extend(payload["selectedTags"])
+    replay.notes = payload["notes"]
+    replay.player_team = payload["playerTeam"]
+    replay.opponent_team = payload["opponentTeam"]
+    return replay
 
 
 # noinspection PyPep8Naming
@@ -33,15 +54,9 @@ class Index(guy.Guy):
         Index.cerebrate.update_replay_info(replay)
         await self.js.replayLoaded(
             {
-                "replayId": replay.replay_hash,
+                **_make_replay_payload(replay),
                 "replayFileName": os.path.split(replay_path)[1],
                 "replayData": data_url,
-                "replayTimestamp": replay.timestamp,
-                "teams": [team.name for team in replay.teams],
-                "playerTeam": replay.player_team,
-                "opponentTeam": replay.opponent_team,
-                "selectedTags": replay.tags,
-                "notes": "",
                 "force": True,
             }
         )
@@ -54,17 +69,7 @@ class Index(guy.Guy):
 
         replay = Index.cerebrate.load_replay_info(replay)
         Index.cerebrate.update_replay_info(replay)
-        await self.js.replayLoaded(
-            {
-                "replayId": replay.replay_hash,
-                "replayTimestamp": replay.timestamp,
-                "teams": [team.name for team in replay.teams],
-                "playerTeam": replay.player_team,
-                "opponentTeam": replay.opponent_team,
-                "selectedTags": replay.tags,
-                "notes": replay.notes,
-            }
-        )
+        await self.js.replayLoaded(_make_replay_payload(replay))
 
     async def selectPlayerOpponent(self, payload: dict):
         replay = self.cerebrate.find_replay(payload["replayId"])
@@ -76,17 +81,7 @@ class Index(guy.Guy):
         Index.cerebrate.update_replay_info(replay)
         replay = Index.cerebrate.load_replay_info(replay)
 
-        await self.js.replayLoaded(
-            {
-                "replayId": replay.replay_hash,
-                "replayTimestamp": replay.timestamp,
-                "teams": [team.name for team in replay.teams],
-                "playerTeam": replay.player_team,
-                "opponentTeam": replay.opponent_team,
-                "selectedTags": replay.tags,
-                "notes": replay.notes,
-            }
-        )
+        await self.js.replayLoaded(_make_replay_payload(replay))
 
     async def updateReplayInfo(self, payload: dict):
         with urllib.request.urlopen(payload["replayData"]) as replay_data:
@@ -96,40 +91,27 @@ class Index(guy.Guy):
             return
 
         Index.cerebrate.update_replay_info(
-            set_replay_info_from_payload(replay, payload)
+            _set_replay_info_from_payload(replay, payload)
         )
 
         await self.js.replayUpdated({"success": True, "replayId": replay.replay_hash})
 
-    async def fetchReplaySummaries(self, filter_tags: List[str]):
-        replays = self.cerebrate.find_replays(filter_tags)
-        return [
-            {
-                "replayId": replay.replay_hash,
-                "replayTimestamp": replay.timestamp,
-                "teams": [team.name for team in replay.teams],
-                "notes": replay.notes,
-            }
-            for replay in replays
-        ]
+    async def findReplays(self, payload: dict):
+        replays = self.cerebrate.find_replays(ReplayQuery(payload.get("includeTags")))
+        frequency_table = self.cerebrate.calculate_tag_frequency_table(
+            replays, payload.get("includeTags")
+        )
 
-    async def fetchTagFrequencyTable(self, filter_tags: List[str]):
-        frequency_table = self.cerebrate.get_tag_frequency_table(filter_tags)
-        return [
-            {
-                "tag": tag,
-                "frequency": frequency,
-            }
-            for tag, frequency in frequency_table.items()
-        ]
-
-
-def set_replay_info_from_payload(replay: Replay, payload: dict) -> Replay:
-    replay.tags.extend(payload["selectedTags"])
-    replay.notes = payload["notes"]
-    replay.player_team = payload["playerTeam"]
-    replay.opponent_team = payload["opponentTeam"]
-    return replay
+        return {
+            "replays": [_make_replay_payload(replay) for replay in replays],
+            "tagFrequencyTable": [
+                {
+                    "tag": tag,
+                    "frequency": frequency,
+                }
+                for tag, frequency in frequency_table.items()
+            ],
+        }
 
 
 def main():
