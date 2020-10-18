@@ -91,8 +91,16 @@ class ReplayStore:
         fields = {
             "tags": replay.tags,
             "notes": replay.notes,
-            **({"player_team": replay.player_team} if replay.player_team else {}),
-            **({"player_team": replay.opponent_team} if replay.opponent_team else {}),
+            **(
+                {"player_team": replay.player_team}
+                if replay.player_team is not None
+                else {}
+            ),
+            **(
+                {"opponent_team": replay.opponent_team}
+                if replay.opponent_team is not None
+                else {}
+            ),
             **(
                 {
                     "canonical_path": replay.path,
