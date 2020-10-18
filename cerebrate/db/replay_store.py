@@ -41,7 +41,7 @@ def _make_db_query(query: ReplayQuery) -> tinydb.Query:
     return doc["tags"].test(
         lambda replay_tags: replay_tags
         and (not include_tags_set or include_tags_set.issubset(replay_tags))
-        and (not exclude_tags_set or not exclude_tags_set.issubset(replay_tags))
+        and (not exclude_tags_set or not exclude_tags_set.intersection(replay_tags))
     )
 
 
