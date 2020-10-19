@@ -38,11 +38,19 @@ def _make_db_query(query: ReplayQuery) -> tinydb.Query:
     exclude_tags_set = set(query.exclude_tags)
 
     doc = tinydb.Query()
-    return doc["tags"].test(
+    db_query = doc["tags"].test(
         lambda replay_tags: replay_tags
         and (not include_tags_set or include_tags_set.issubset(replay_tags))
         and (not exclude_tags_set or not exclude_tags_set.intersection(replay_tags))
     )
+    if None not in [query.start_timestamp, query.end_timestamp]:
+        db_query = (
+            db_query
+            & (doc["timestamp"] >= query.start_timestamp)
+            & (doc["timestamp"] <= query.end_timestamp)
+        )
+
+    return db_query
 
 
 class ReplayStore:

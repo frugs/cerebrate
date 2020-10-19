@@ -100,6 +100,8 @@ class Index(guy.Guy):
         query = ReplayQuery(
             include_tags=payload.get("includeTags"),
             exclude_tags=payload.get("excludeTags"),
+            start_timestamp=payload.get("startTimestamp"),
+            end_timestamp=payload.get("endTimestamp"),
         )
         replays = self.cerebrate.find_replays(query)
         frequency_table = self.cerebrate.calculate_tag_frequency_table(
