@@ -161,7 +161,9 @@ class ReplayStore:
         )
 
         is_valid_doc = (
-            lambda doc: doc["teams"] and len(doc["teams"]) > doc["player_team"]
+            lambda doc: doc["teams"]
+            and len(doc["teams"]) > doc["player_team"]
+            and doc["player_team"] is not doc["opponent_team"]
         )
         return list(
             set(

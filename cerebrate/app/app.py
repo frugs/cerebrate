@@ -1,7 +1,7 @@
 import base64
 import os
 import urllib.request
-from typing import ClassVar
+from typing import ClassVar, Optional
 
 import guy
 
@@ -10,7 +10,7 @@ from cerebrate.core import Replay
 from cerebrate.core.replay_query import ReplayQuery
 
 
-def _make_replay_payload(replay: Replay) -> dict:
+def _make_replay_payload(replay: Replay, force: bool = False) -> dict:
     return {
         "replayId": replay.replay_hash,
         "replayTimestamp": replay.timestamp,
@@ -19,14 +19,15 @@ def _make_replay_payload(replay: Replay) -> dict:
         "opponentTeam": replay.opponent_team,
         "selectedTags": replay.tags,
         "notes": "",
+        "force": force,
     }
 
 
 def _set_replay_info_from_payload(replay: Replay, payload: dict) -> Replay:
-    replay.tags.extend(payload["selectedTags"])
-    replay.notes = payload["notes"]
-    replay.player_team = payload["playerTeam"]
-    replay.opponent_team = payload["opponentTeam"]
+    replay.set_tags(payload.get("selectedTags", []))
+    replay.notes = payload.get("notes", "")
+    replay.player_team = payload.get("playerTeam")
+    replay.opponent_team = payload.get("opponentTeam")
     return replay
 
 
@@ -62,14 +63,20 @@ class Index(guy.Guy):
         )
 
     async def selectReplay(self, payload: dict):
-        with urllib.request.urlopen(payload["replayData"]) as replay_data:
-            replay = Index.cerebrate.save_replay_data(replay_data, payload["replayId"])
+        replay_hash: str = payload["replayId"]
+        replay_url: Optional[str] = payload.get("replayData")
+        if replay_url:
+            with urllib.request.urlopen(replay_url) as replay_data:
+                replay = Index.cerebrate.save_replay_data(replay_data, replay_hash)
+        else:
+            replay = Index.cerebrate.find_replay(replay_hash)
+
         if not replay:
             return
 
         replay = Index.cerebrate.load_replay_info(replay)
         Index.cerebrate.update_replay_info(replay)
-        await self.js.replayLoaded(_make_replay_payload(replay))
+        await self.js.replayLoaded(_make_replay_payload(replay, payload.get("force")))
 
     async def selectPlayerOpponent(self, payload: dict):
         replay = self.cerebrate.find_replay(payload["replayId"])
@@ -84,8 +91,14 @@ class Index(guy.Guy):
         await self.js.replayLoaded(_make_replay_payload(replay))
 
     async def updateReplayInfo(self, payload: dict):
-        with urllib.request.urlopen(payload["replayData"]) as replay_data:
-            replay = Index.cerebrate.save_replay_data(replay_data, payload["replayId"])
+        replay_hash: str = payload["replayId"]
+        replay_url: Optional[str] = payload.get("replayData")
+        if replay_url:
+            with urllib.request.urlopen(replay_url) as replay_data:
+                replay = Index.cerebrate.save_replay_data(replay_data, replay_hash)
+        else:
+            replay = Index.cerebrate.find_replay(replay_hash)
+
         if not replay:
             await self.js.replayUpdated({"success": False})
             return

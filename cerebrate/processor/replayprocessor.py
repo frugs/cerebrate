@@ -38,7 +38,6 @@ class ReplayProcessor:
             + replay.tags
         )
 
-        replay.tags.clear()
-        replay.tags.extend(new_tags)
+        replay.set_tags(new_tags)
 
         return replay

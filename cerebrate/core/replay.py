@@ -1,7 +1,7 @@
 import functools
 import hashlib
 import os
-from typing import BinaryIO, Final, List, Optional, final
+from typing import BinaryIO, Final, List, Optional, final, Iterable
 
 
 @final
@@ -81,12 +81,16 @@ class Replay:
 
         self.path = os.path.normpath(path)
         self.replay_hash = replay_hash
-        self.tags = tags
+        self.tags = list(dict.fromkeys(tags))
         self.notes = notes
         self.teams = teams
         self.timestamp = timestamp
         self.player_team = player_team
         self.opponent_team = opponent_team
+
+    def set_tags(self, tags: Iterable[str]):
+        self.tags.clear()
+        self.tags.extend(dict.fromkeys(tags))
 
     def append_tag(self, tag: str):
         if tag not in set(self.tags):
@@ -95,8 +99,7 @@ class Replay:
     def prepend_tag(self, tag: str):
         if tag not in set(self.tags):
             new_tags = [tag] + self.tags
-            self.tags.clear()
-            self.tags.extend(new_tags)
+            self.set_tags(new_tags)
 
     def remove_tag(self, tag: str):
         if tag in set(self.tags):
