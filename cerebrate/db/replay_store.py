@@ -150,10 +150,14 @@ class ReplayStore:
 
     def query_replays(self, query: ReplayQuery) -> List[Replay]:
         docs = self._table.search(_make_db_query(query))
-        return [_replay_from_doc(doc) for doc in docs]
+        replays = [_replay_from_doc(doc) for doc in docs]
+        replays.sort(key=lambda replay: replay.timestamp, reverse=True)
+        return replays
 
     def all_replays(self) -> List[Replay]:
-        return [_replay_from_doc(doc) for doc in self._table.all()]
+        replays = [_replay_from_doc(doc) for doc in self._table.all()]
+        replays.sort(key=lambda replay: replay.timestamp, reverse=True)
+        return replays
 
     def get_replay_player_team_ids(self) -> List[str]:
         result = self._table.search(
