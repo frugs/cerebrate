@@ -1,7 +1,7 @@
 import base64
 import os
 import urllib.request
-from typing import ClassVar, Optional
+from typing import ClassVar, Optional, List
 
 import guy
 
@@ -131,6 +131,11 @@ class Index(guy.Guy):
                 for tag, frequency in frequency_table.items()
             ],
         }
+
+    async def forgetReplays(self, payload: dict):
+        replay_hashes: List[str] = payload.get("replayIds", [])
+        for replay_hash in replay_hashes:
+            self.cerebrate.forget_replay(replay_hash)
 
 
 def main():

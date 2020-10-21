@@ -159,6 +159,9 @@ class ReplayStore:
         replays.sort(key=lambda replay: replay.timestamp, reverse=True)
         return replays
 
+    def remove_replay_by_hash(self, replay_hash: str):
+        self._table.remove(tinydb.where("hash") == replay_hash)
+
     def get_replay_player_team_ids(self) -> List[str]:
         result = self._table.search(
             (tinydb.where("player_team") != None) & (tinydb.where("teams") != None)

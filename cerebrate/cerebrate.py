@@ -52,6 +52,9 @@ class Cerebrate:
     def find_replays(self, query: ReplayQuery) -> List[Replay]:
         return self.replay_store.query_replays(query)
 
+    def forget_replay(self, replay_hash: str):
+        self.replay_store.remove_replay_by_hash(replay_hash)
+
     @staticmethod
     def calculate_tag_frequency_table(
         replays: List[Replay], ignore_tags: List[str]
