@@ -1,5 +1,8 @@
 import base64
 import os
+import subprocess
+import sys
+import tempfile
 import urllib.request
 from typing import ClassVar, Optional, List
 
@@ -29,6 +32,15 @@ def _set_replay_info_from_payload(replay: Replay, payload: dict) -> Replay:
     replay.player_team = payload.get("playerTeam")
     replay.opponent_team = payload.get("opponentTeam")
     return replay
+
+
+def _cross_platform_open(path: str):
+    if sys.platform == "win32":
+        os.startfile(path)
+    elif sys.platform == "darwin":
+        subprocess.Popen(["open", path])
+    else:
+        subprocess.Popen(["xdg-open", path])
 
 
 # noinspection PyPep8Naming
@@ -136,6 +148,18 @@ class Index(guy.Guy):
         replay_hashes: List[str] = payload.get("replayIds", [])
         for replay_hash in replay_hashes:
             self.cerebrate.forget_replay(replay_hash)
+
+    async def exportReplaysToTempDir(self, payload: dict):
+        replay_hashes: List[str] = payload.get("replayIds", [])
+        replays = [
+            self.cerebrate.find_replay(replay_hash) for replay_hash in replay_hashes
+        ]
+
+        # no automatic cleanup - let os handle cleanup
+        export_path = tempfile.mkdtemp()
+        Cerebrate.export_replays_to_directory(replays, export_path)
+
+        _cross_platform_open(export_path)
 
 
 def main():

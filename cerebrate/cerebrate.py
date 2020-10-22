@@ -1,4 +1,6 @@
 import os
+import shutil
+import traceback
 from typing import BinaryIO, Final, Optional, List, Dict
 
 import collections
@@ -54,6 +56,18 @@ class Cerebrate:
 
     def forget_replay(self, replay_hash: str):
         self.replay_store.remove_replay_by_hash(replay_hash)
+
+    @staticmethod
+    def export_replays_to_directory(replays: List[Replay], export_path: str):
+        canonical_export_path = os.path.realpath(export_path)
+        if not os.path.exists(canonical_export_path):
+            os.makedirs(canonical_export_path)
+
+        if not os.path.isdir(canonical_export_path):
+            raise ValueError("export path must be a directory")
+
+        for replay in replays:
+            shutil.copy(replay.path, canonical_export_path)
 
     @staticmethod
     def calculate_tag_frequency_table(
