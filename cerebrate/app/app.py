@@ -6,6 +6,7 @@ import tempfile
 import urllib.request
 from typing import ClassVar, Optional, List
 
+import easygui as easygui
 import guy
 
 from cerebrate.cerebrate import Cerebrate
@@ -32,6 +33,10 @@ def _set_replay_info_from_payload(replay: Replay, payload: dict) -> Replay:
     replay.player_team = payload.get("playerTeam")
     replay.opponent_team = payload.get("opponentTeam")
     return replay
+
+
+def _replays_from_hashes(cerebrate: Cerebrate, replay_hashes: List[str]):
+    return [cerebrate.find_replay(replay_hash) for replay_hash in replay_hashes]
 
 
 def _cross_platform_open(path: str):
@@ -150,15 +155,22 @@ class Index(guy.Guy):
             self.cerebrate.forget_replay(replay_hash)
 
     async def exportReplaysToTempDir(self, payload: dict):
-        replay_hashes: List[str] = payload.get("replayIds", [])
-        replays = [
-            self.cerebrate.find_replay(replay_hash) for replay_hash in replay_hashes
-        ]
-
         # no automatic cleanup - let os handle cleanup
         export_path = tempfile.mkdtemp()
+        replay_hashes: List[str] = payload.get("replayIds", [])
+        replays = _replays_from_hashes(self.cerebrate, replay_hashes)
         Cerebrate.export_replays_to_directory(replays, export_path)
+        _cross_platform_open(export_path)
+        return export_path
 
+    async def exportReplaysToTargetDir(self, payload: dict):
+        export_path = easygui.diropenbox(title="Export to directory")
+        if not export_path:
+            return
+
+        replay_hashes: List[str] = payload.get("replayIds", [])
+        replays = _replays_from_hashes(self.cerebrate, replay_hashes)
+        Cerebrate.export_replays_to_directory(replays, export_path)
         _cross_platform_open(export_path)
 
 
