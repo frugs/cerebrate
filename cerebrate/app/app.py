@@ -172,6 +172,7 @@ class Index(guy.Guy):
         replays = _replays_from_hashes(self.cerebrate, replay_hashes)
         Cerebrate.export_replays_to_directory(replays, export_path)
         _cross_platform_open(export_path)
+        return export_path
 
 
 def main():
