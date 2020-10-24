@@ -4,7 +4,6 @@
 #
 #    pip-compile
 #
-easygui==0.98.1           # via cerebrate (setup.py)
 guy==0.7.5                # via cerebrate (setup.py)
 mpyq==0.2.5               # via sc2reader
 sc2reader==1.6.0          # via cerebrate (setup.py)

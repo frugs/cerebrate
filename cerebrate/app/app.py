@@ -9,6 +9,7 @@ from typing import ClassVar, Optional, List
 import easygui as easygui
 import guy
 
+from cerebrate.app import native_gui_utils
 from cerebrate.cerebrate import Cerebrate
 from cerebrate.core import Replay
 from cerebrate.core.replay_query import ReplayQuery
@@ -164,7 +165,7 @@ class Index(guy.Guy):
         return export_path
 
     async def exportReplaysToTargetDir(self, payload: dict):
-        export_path = easygui.diropenbox(title="Export to directory")
+        export_path = await native_gui_utils.open_directory_picker(title="Export to directory")
         if not export_path:
             return
 
