@@ -1,4 +1,5 @@
 import base64
+import glob
 import os
 import subprocess
 import sys
@@ -175,6 +176,14 @@ class Index(guy.Guy):
         replays = _replays_from_hashes(self.cerebrate, replay_hashes)
         Cerebrate.export_replays_to_directory(replays, export_path)
         return export_path
+
+    async def exportReplaysToScelight(self, payload: dict):
+        scelight_path = self.cerebrate.settings.scelight_path
+        if not scelight_path:
+            return
+
+        export_path = await self.exportReplaysToTempDir(payload)
+        subprocess.Popen([scelight_path] + glob.glob(os.path.join(export_path, "*")))
 
     async def openDirInFileManager(self, payload: dict):
         path = payload.get("dirPath")
