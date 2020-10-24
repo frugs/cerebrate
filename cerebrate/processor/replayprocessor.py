@@ -13,10 +13,8 @@ from ..util import flatten
 
 
 class ReplayProcessor:
-    _replay_store: Final[ReplayStore]
-
     def __init__(self, replay_store: ReplayStore):
-        self._replay_store = replay_store
+        self._replay_store: Final[ReplayStore] = replay_store
 
     def process_replay(self, replay: Replay) -> Replay:
         replay_data_extractor = ReplayDataExtractor(replay)

@@ -6,7 +6,6 @@ import tempfile
 import urllib.request
 from typing import ClassVar, Optional, List
 
-import easygui as easygui
 import guy
 
 from cerebrate.app import native_gui_utils
@@ -94,7 +93,9 @@ class Index(guy.Guy):
 
         replay = Index.cerebrate.load_replay_info(replay)
         Index.cerebrate.update_replay_info(replay)
-        await self.js.replayLoaded(_make_replay_payload(replay, payload.get("force")))
+        await self.js.replayLoaded(
+            _make_replay_payload(replay, payload.get("force", False))
+        )
 
     async def selectPlayerOpponent(self, payload: dict):
         replay = self.cerebrate.find_replay(payload["replayId"])
@@ -165,7 +166,9 @@ class Index(guy.Guy):
         return export_path
 
     async def exportReplaysToTargetDir(self, payload: dict):
-        export_path = await native_gui_utils.open_directory_picker(title="Export to directory")
+        export_path = await native_gui_utils.open_directory_picker(
+            title="Export to directory"
+        )
         if not export_path:
             return
 

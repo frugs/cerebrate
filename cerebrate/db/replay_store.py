@@ -1,6 +1,6 @@
 import os
 import shutil
-from typing import BinaryIO, Final, List, Optional
+from typing import BinaryIO, Final, List, Optional, Any, Dict
 
 import tinydb
 import tinydb.table
@@ -10,16 +10,13 @@ from cerebrate.core.replay_query import ReplayQuery
 
 
 def _replay_from_doc(doc: dict) -> Replay:
-    teams = None
-    if (
-        doc.get("teams")
-        and doc.get("team_names")
-        and len(doc.get("teams")) == len(doc.get("team_names"))
-    ):
-        teams = [
-            Team(team_id, name)
-            for team_id, name in zip(doc.get("teams"), doc.get("team_names"))
-        ]
+    doc_teams = doc.get("teams", [])
+    doc_team_names = doc.get("team_names", [])
+    teams = (
+        [Team(team_id, name) for team_id, name in zip(doc_teams, doc_team_names)]
+        if doc_teams and doc_team_names and len(doc_teams) == len(doc_team_names)
+        else None
+    )
 
     return Replay(
         path=doc["canonical_path"],
@@ -57,10 +54,6 @@ class ReplayStore:
     _REPLAY_ARCHIVE_SUBDIRECTORY_NAME: Final = "replay_archive"
     _DB_FILE_NAME: Final = "replays.json"
 
-    _db: Final[tinydb.TinyDB]
-    _table: Final[tinydb.table.Table]
-    _replay_archive_path: Final[str]
-
     def __init__(self, db_data_path: str):
         if not os.path.exists(db_data_path):
             os.makedirs(db_data_path)
@@ -75,9 +68,11 @@ class ReplayStore:
         if not os.path.exists(db_path):
             open(db_path, "a").close()
 
-        self._db = tinydb.TinyDB(db_path)
-        self._table = self._db.table(tinydb.TinyDB.default_table_name)
-        self._replay_archive_path = replay_archive_path
+        self._db: Final[tinydb.TinyDB] = tinydb.TinyDB(db_path)
+        self._table: Final[tinydb.table.Table] = self._db.table(
+            tinydb.TinyDB.default_table_name
+        )
+        self._replay_archive_path: Final[str] = replay_archive_path
 
     def insert_replay_data(
         self, replay_data: BinaryIO, replay_hash: Optional[str] = None
@@ -96,7 +91,7 @@ class ReplayStore:
         return Replay(canonical_path, calculated_hash)
 
     def update_or_insert_replay(self, replay: Replay, overwrite_all: bool = False):
-        fields = {
+        fields: Dict[str, Any] = {
             "tags": replay.tags,
             "notes": replay.notes,
             **(

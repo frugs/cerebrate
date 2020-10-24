@@ -1,14 +1,11 @@
 import os
 import shutil
-import traceback
+from collections import OrderedDict
 from typing import BinaryIO, Final, Optional, List, Dict
 
-import collections
-import typing
-
 from cerebrate.core import Replay
-from cerebrate.db import ReplayStore
 from cerebrate.core.replay_query import ReplayQuery
+from cerebrate.db import ReplayStore
 from cerebrate.processor import ReplayProcessor
 from cerebrate.replaysearch import ReplaySearcher
 from cerebrate.util import flatten
@@ -72,13 +69,13 @@ class Cerebrate:
     @staticmethod
     def calculate_tag_frequency_table(
         replays: List[Replay], ignore_tags: List[str]
-    ) -> typing.OrderedDict[str, int]:
+    ) -> Dict[str, int]:
         tag_set = set(flatten(replay.tags for replay in replays))
         frequency_table: Dict[str, int] = dict(
             (tag, _calculate_tag_frequency(tag, replays))
             for tag in tag_set.difference(ignore_tags)
         )
-        return collections.OrderedDict(
+        return OrderedDict(
             sorted(
                 ((tag, freq) for tag, freq in frequency_table.items()),
                 key=lambda x: x[1],

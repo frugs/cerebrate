@@ -13,18 +13,17 @@ class ReplayDataExtractor:
     _player: Optional[sc2reader.objects.Participant]
     _opponent: Optional[sc2reader.objects.Participant]
 
-    replay_info: Final[Replay]
-    source_replay_data: Final[sc2reader.resources.Replay]
-
     def __init__(self, replay: Replay):
         self._player_team = None
         self._opponent_team = None
         self._player = None
         self._opponent = None
 
-        self.replay_info = replay
+        self.replay_info: Final[Replay] = replay
         # noinspection PyUnresolvedReferences
-        self.source_replay_data = sc2reader.load_replay(replay.path, load_level=4)
+        self.source_replay_data: Final[
+            sc2reader.resources.Replay
+        ] = sc2reader.load_replay(replay.path, load_level=4)
 
     @property
     def player_team(self) -> Optional[sc2reader.objects.Team]:
