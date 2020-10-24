@@ -48,7 +48,7 @@ def _cross_platform_open(path: str):
         subprocess.Popen(["xdg-open", path])
 
 
-# noinspection PyPep8Naming
+# noinspection PyPep8Naming, PyMethodMayBeStatic
 class Index(guy.Guy):
     size = (1200, 800)
 
@@ -162,7 +162,6 @@ class Index(guy.Guy):
         replay_hashes: List[str] = payload.get("replayIds", [])
         replays = _replays_from_hashes(self.cerebrate, replay_hashes)
         Cerebrate.export_replays_to_directory(replays, export_path)
-        _cross_platform_open(export_path)
         return export_path
 
     async def exportReplaysToTargetDir(self, payload: dict):
@@ -170,13 +169,33 @@ class Index(guy.Guy):
             title="Export to directory"
         )
         if not export_path:
-            return
+            return None
 
         replay_hashes: List[str] = payload.get("replayIds", [])
         replays = _replays_from_hashes(self.cerebrate, replay_hashes)
         Cerebrate.export_replays_to_directory(replays, export_path)
-        _cross_platform_open(export_path)
         return export_path
+
+    async def openDirInFileManager(self, payload: dict):
+        path = payload.get("dirPath")
+        if not path:
+            return None
+
+        _cross_platform_open(path)
+
+    async def getScelightPath(self):
+        return self.cerebrate.settings.scelight_path
+
+    async def selectScelightPath(self):
+        scelight_path = await native_gui_utils.open_file_picker(
+            title="Choose Scelight installation"
+        )
+        if not scelight_path:
+            return None
+
+        self.cerebrate.settings.scelight_path = os.path.normpath(scelight_path)
+
+        return scelight_path
 
 
 def main():

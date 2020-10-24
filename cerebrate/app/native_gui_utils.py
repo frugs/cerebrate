@@ -1,10 +1,26 @@
 import asyncio
 import contextlib
 import os
+import sys
 import tkinter
 import tkinter.filedialog
 
-from typing import Optional, Generator
+from typing import Optional, Generator, Tuple, List
+
+
+def _cross_platform_file_types() -> List[Tuple[str, str]]:
+    if sys.platform == "win32":
+        return [
+            ("Scelight", "*.exe"),
+        ]
+    elif sys.platform == "darwin":
+        return [
+            ("Scelight", "*.command"),
+        ]
+    else:
+        return [
+            ("Scelight", "*.sh"),
+        ]
 
 
 @contextlib.contextmanager
@@ -40,3 +56,20 @@ async def open_directory_picker(title: str = None) -> Optional[str]:
 
     loop = asyncio.get_event_loop()
     return await loop.run_in_executor(None, ask_directory)
+
+
+async def open_file_picker(title: str = None) -> Optional[str]:
+    if title is None:
+        title = "Select file"
+
+    def ask_file():
+        with _make_root_window_for_dialog(title) as root:
+            filename = tkinter.filedialog.askopenfilename(
+                parent=root,
+                title=title,
+                filetypes=_cross_platform_file_types(),
+            )
+        return os.path.normpath(filename) if filename else None
+
+    loop = asyncio.get_event_loop()
+    return await loop.run_in_executor(None, ask_file)

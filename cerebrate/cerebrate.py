@@ -8,6 +8,7 @@ from cerebrate.core.replay_query import ReplayQuery
 from cerebrate.db import ReplayStore
 from cerebrate.processor import ReplayProcessor
 from cerebrate.replaysearch import ReplaySearcher
+from cerebrate.settings.cerebrate_settings import CerebrateSettings
 from cerebrate.util import flatten
 
 APP_DATA_PATH = os.path.normpath(os.path.expanduser("~/.cerebrate"))
@@ -18,16 +19,16 @@ def _calculate_tag_frequency(tag: str, replays: List[Replay]) -> int:
 
 
 class Cerebrate:
-    replay_store: Final[ReplayStore]
-    replay_processor: Final[ReplayProcessor]
-
     @staticmethod
     def find_most_recent_replay_path() -> Optional[str]:
         return ReplaySearcher.get_most_recently_played_replay_path()
 
     def __init__(self):
-        self.replay_store = ReplayStore(APP_DATA_PATH)
-        self.replay_processor = ReplayProcessor(self.replay_store)
+        self.settings: Final[CerebrateSettings] = CerebrateSettings(APP_DATA_PATH)
+        self.replay_store: Final[ReplayStore] = ReplayStore(APP_DATA_PATH)
+        self.replay_processor: Final[ReplayProcessor] = ReplayProcessor(
+            self.replay_store
+        )
 
     def save_replay_data(
         self, replay_data: BinaryIO, replay_hash: Optional[str] = None
