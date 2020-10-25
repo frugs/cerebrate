@@ -11,6 +11,7 @@ from cerebrate.core import Replay
 class ReplayDataExtractor:
     DEFAULT_FPS: Final = 16
     EARLY_GAME_END: Final = 60 * 5 * DEFAULT_FPS
+    LATE_GAME_START: Final = 60 * 12 * DEFAULT_FPS
 
     _player_team: Optional[sc2reader.objects.Team]
     _opponent_team: Optional[sc2reader.objects.Team]

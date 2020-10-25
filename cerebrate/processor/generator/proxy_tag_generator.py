@@ -5,8 +5,8 @@ import sc2reader.objects
 
 from cerebrate.core import Replay
 from cerebrate.processor.extractor import ReplayDataExtractor
+from cerebrate.util import flatten
 from .tag_generator import TagGenerator
-from ...util import flatten
 
 _PROXY_TAG_PREFIX = "proxy_"
 
