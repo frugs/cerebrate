@@ -10,6 +10,7 @@ import urllib.request
 from typing import ClassVar, Optional, List, Tuple
 
 import guy
+import keyring
 import requests
 
 from cerebrate.app import native_gui_utils
@@ -195,6 +196,8 @@ class Index(guy.Guy):
         if not auth_key:
             return
 
+        keyring.set_password("sc2replaystats", "auth_key", auth_key)
+
         headers = {"Authorization": auth_key}
 
         def export_replay(replay: Replay) -> Optional[str]:
@@ -270,6 +273,9 @@ class Index(guy.Guy):
         self.cerebrate.settings.scelight_path = os.path.normpath(scelight_path)
 
         return scelight_path
+
+    async def getSc2ReplayStatsAuthKey(self):
+        return keyring.get_password("sc2replaystats", "auth_key")
 
 
 def main():

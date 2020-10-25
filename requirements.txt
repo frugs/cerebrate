@@ -8,7 +8,9 @@ certifi==2020.6.20        # via requests
 chardet==3.0.4            # via requests
 guy==0.7.5                # via cerebrate (setup.py)
 idna==2.10                # via requests
+keyring==21.4.0           # via cerebrate (setup.py)
 mpyq==0.2.5               # via sc2reader
+pywin32-ctypes==0.2.0     # via keyring
 requests==2.24.0          # via cerebrate (setup.py)
 sc2reader==1.6.0          # via cerebrate (setup.py)
 tinydb==4.2.0             # via cerebrate (setup.py)
