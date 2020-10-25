@@ -1,13 +1,16 @@
+import asyncio
 import base64
 import glob
+import json
 import os
 import subprocess
 import sys
 import tempfile
 import urllib.request
-from typing import ClassVar, Optional, List
+from typing import ClassVar, Optional, List, Tuple
 
 import guy
+import requests
 
 from cerebrate.app import native_gui_utils
 from cerebrate.cerebrate import Cerebrate
@@ -15,7 +18,7 @@ from cerebrate.core import Replay
 from cerebrate.core.replay_query import ReplayQuery
 
 
-def _make_replay_payload(replay: Replay, force: bool = False) -> dict:
+def _make_replay_payload(replay: Replay) -> dict:
     return {
         "replayId": replay.replay_hash,
         "replayTimestamp": replay.timestamp,
@@ -23,8 +26,7 @@ def _make_replay_payload(replay: Replay, force: bool = False) -> dict:
         "playerTeam": replay.player_team,
         "opponentTeam": replay.opponent_team,
         "selectedTags": replay.tags,
-        "notes": "",
-        "force": force,
+        "notes": replay.notes,
     }
 
 
@@ -95,7 +97,10 @@ class Index(guy.Guy):
         replay = Index.cerebrate.load_replay_info(replay)
         Index.cerebrate.update_replay_info(replay)
         await self.js.replayLoaded(
-            _make_replay_payload(replay, payload.get("force", False))
+            {
+                **_make_replay_payload(replay),
+                "force": payload.get("force", False),
+            }
         )
 
     async def selectPlayerOpponent(self, payload: dict):
@@ -184,6 +189,66 @@ class Index(guy.Guy):
 
         export_path = await self.exportReplaysToTempDir(payload)
         subprocess.Popen([scelight_path] + glob.glob(os.path.join(export_path, "*")))
+
+    async def exportReplaysToSc2ReplayStats(self, payload: dict):
+        auth_key: str = payload.get("authKey", "").strip()
+        if not auth_key:
+            return
+
+        headers = {"Authorization": auth_key}
+
+        def export_replay(replay: Replay) -> Optional[str]:
+            with open(replay.path, "rb") as file:
+                response = requests.post(
+                    "http://api.sc2replaystats.com/replay",
+                    data={
+                        "upload_method": "ext",
+                    },
+                    headers=headers,
+                    files={"replay_file": file},
+                )
+                if response.status_code != 200:
+                    return None
+
+                return json.loads(response.text).get("replay_queue_id")
+
+        def get_export_id(replay_queue_id: str) -> Optional[str]:
+            response = requests.get(
+                f"http://api.sc2replaystats.com/replay/status/{replay_queue_id}",
+                headers=headers,
+            )
+            if response.status_code != 200:
+                # Don't bother waiting if we can't get an OK response
+                return ""
+            return json.loads(response.text).get("replay_id")
+
+        replay_hashes: List[str] = payload.get("replayIds", [])
+        replays = _replays_from_hashes(self.cerebrate, replay_hashes)
+        replay_queue_ids: List[Tuple[Replay, str]] = list(
+            filter(
+                lambda result: result[1] is not None,
+                [(replay, export_replay(replay)) for replay in replays],
+            )
+        )
+
+        loop = True
+        export_ids = []
+        while loop:
+            await asyncio.sleep(3)
+            export_ids = [
+                (replay, get_export_id(replay_queue_id))
+                for replay, replay_queue_id in replay_queue_ids
+            ]
+            loop = any(replay_id is None for replay, replay_id in export_ids)
+
+        return [
+            {
+                **_make_replay_payload(replay),
+                "exportUrl": f"https://sc2replaystats.com/replay/{export_id}",
+            }
+            for replay, export_id in export_ids
+            if export_id
+        ]
 
     async def openDirInFileManager(self, payload: dict):
         path = payload.get("dirPath")
