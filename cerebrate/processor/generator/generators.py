@@ -2,7 +2,9 @@ from typing import List
 
 from .ai_tag_generator import AITagGenerator
 from .game_type_tag_generator import GameTypeTagGenerator
+from .map_tag_generator import MapTagGenerator
 from .matchup_tag_generator import MatchupTagGenerator
+from .proxy_tag_generator import ProxyTagGenerator
 from .race_tag_generator import RaceTagGenerator
 from .random_tag_generator import RandomTagGenerator
 from .result_tag_generator import ResultTagGenerator
@@ -17,4 +19,6 @@ def create_tag_generators() -> List[TagGenerator]:
         MatchupTagGenerator(),
         AITagGenerator(),
         GameTypeTagGenerator(),
+        MapTagGenerator(),
+        ProxyTagGenerator(),
     ]
