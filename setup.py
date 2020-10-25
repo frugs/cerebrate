@@ -15,5 +15,5 @@ setup(
     packages=find_packages(),
     py_modules=["cerebrate"],
     include_package_data=True,
-    install_requires=["tinydb", "guy", "sc2reader"],
+    install_requires=["tinydb", "guy", "sc2reader", "requests"],
 )
