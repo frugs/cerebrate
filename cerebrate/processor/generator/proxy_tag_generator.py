@@ -10,31 +10,42 @@ from .tag_generator import TagGenerator
 
 _PROXY_TAG_PREFIX = "proxy_"
 
-_PRODUCTION_STRUCTURES = [
-    "Starport",
-    "Factory",
-    "Barracks",
-    "CommandCenter",
-    "RoboticsFacility",
-    "Stargate",
-    "Gateway",
-    "Nexus",
-    "Hatchery",
-]
+_PRODUCTION_STRUCTURES = {
+    "Starport": "starport",
+    "Factory": "factory",
+    "Barracks": "barracks",
+    "CommandCenter": "commandcenter",
+    "RoboticsFacility": "robo",
+    "Stargate": "stargate",
+    "Gateway": "gateway",
+    "Nexus": "nexus",
+    "Hatchery": "hatchery",
+}
 
 
 def _make_tag(tag_factory: Callable[[str], str], structure_name: str) -> str:
-    return tag_factory(_PROXY_TAG_PREFIX + structure_name.lower())
+    return tag_factory(
+        _PROXY_TAG_PREFIX + _PRODUCTION_STRUCTURES[structure_name].lower()
+    )
 
 
 class ProxyTagGenerator(TagGenerator):
     def tags_to_remove(self) -> List[str]:
         tag_factories = [Replay.create_player_tag, Replay.create_opponent_tag]
-        return flatten(
+        deprecated_tags = flatten(
+            [
+                [
+                    tag_factory(_PROXY_TAG_PREFIX + structure.lower())
+                    for structure in _PRODUCTION_STRUCTURES.keys()
+                ]
+                for tag_factory in tag_factories
+            ]
+        )
+        return deprecated_tags + flatten(
             [
                 [
                     _make_tag(tag_factory, structure)
-                    for structure in _PRODUCTION_STRUCTURES
+                    for structure in _PRODUCTION_STRUCTURES.keys()
                 ]
                 for tag_factory in tag_factories
             ]
@@ -58,7 +69,11 @@ class ProxyTagGenerator(TagGenerator):
                 in _PRODUCTION_STRUCTURES
                 and replay_data_extractor.is_proxy(unit)
             ]
-            result.sort(key=lambda structure: _PRODUCTION_STRUCTURES.index(structure))
+            result.sort(
+                key=lambda structure: list(_PRODUCTION_STRUCTURES.keys()).index(
+                    structure
+                )
+            )
             return result
 
         tags = []
