@@ -15,6 +15,7 @@ HIGH_TECH_UNITS = {
     "Mutalisk": "muta",
     "SwarmHost": "swarm_host",
     "VoidRay": "void_ray",
+    "DarkTemplar": "dt",
     "Carrier": "carrier",
 }
 
@@ -48,7 +49,6 @@ class HighTechUnitTagGenerator(TagGenerator):
                 ReplayDataExtractor.get_original_unit_name(unit)
                 for unit in participant.units
                 if unit.is_army
-                and unit.started_at <= ReplayDataExtractor.LATE_GAME_START
             )
 
         def generate_tags_inner(
