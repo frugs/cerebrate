@@ -10,6 +10,7 @@ from cerebrate.core import Replay
 
 class ReplayDataExtractor:
     DEFAULT_FPS: Final = 16
+    EARLY_RUSH_END: Final = 60 * 3 * DEFAULT_FPS
     EARLY_GAME_END: Final = 60 * 5 * DEFAULT_FPS
     LATE_GAME_START: Final = 60 * 12 * DEFAULT_FPS
 

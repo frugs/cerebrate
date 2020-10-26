@@ -1,6 +1,7 @@
 from typing import List
 
 from .ai_tag_generator import AITagGenerator
+from .cannon_rush_tag_generator import CannonRushTagGenerator
 from .game_type_tag_generator import GameTypeTagGenerator
 from .map_tag_generator import MapTagGenerator
 from .matchup_tag_generator import MatchupTagGenerator
@@ -25,4 +26,5 @@ def create_tag_generators() -> List[TagGenerator]:
         ProxyTagGenerator(),
         MechBioTagGenerator(),
         ProtossTechTagGenerator(),
+        CannonRushTagGenerator(),
     ]
