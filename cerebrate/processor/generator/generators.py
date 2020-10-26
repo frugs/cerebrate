@@ -3,6 +3,7 @@ from typing import List
 from .ai_tag_generator import AITagGenerator
 from .cannon_rush_tag_generator import CannonRushTagGenerator
 from .game_type_tag_generator import GameTypeTagGenerator
+from .high_tech_unit_tag_generator import HighTechUnitTagGenerator
 from .map_tag_generator import MapTagGenerator
 from .matchup_tag_generator import MatchupTagGenerator
 from .mech_bio_tag_generator import MechBioTagGenerator
@@ -27,4 +28,5 @@ def create_tag_generators() -> List[TagGenerator]:
         MechBioTagGenerator(),
         ProtossTechTagGenerator(),
         CannonRushTagGenerator(),
+        HighTechUnitTagGenerator(),
     ]
