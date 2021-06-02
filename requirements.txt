@@ -15,4 +15,4 @@ requests==2.24.0          # via cerebrate (setup.py)
 sc2reader==1.6.0          # via cerebrate (setup.py)
 tinydb==4.2.0             # via cerebrate (setup.py)
 tornado==6.0.4            # via guy
-urllib3==1.25.11          # via requests
+urllib3==1.26.5          # via requests
