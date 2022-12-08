@@ -4,7 +4,7 @@
 #
 #    pip-compile
 #
-certifi==2020.6.20        # via requests
+certifi==2022.12.7        # via requests
 chardet==3.0.4            # via requests
 guy==0.7.5                # via cerebrate (setup.py)
 idna==2.10                # via requests
